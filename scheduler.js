@@ -38,48 +38,40 @@ async function runMainTask() {
         }
     }
 
-    console.log(`\n[${new Date().toLocaleString()}] 🚀 오늘의 콘텐츠 생성 및 자동화 시퀀스 개시...`);
+    console.log(`\n[${new Date().toLocaleString()}] 🚀 오늘의 콘텐츠 생성 및 자동화 시퀀스 개시 (총 ${VIDEOS_PER_DAY}개)...`);
     
     try {
         // 락 파일 생성 (현재 프로세스 ID 기록)
         await fs.writeFile(LOCK_PATH, process.pid.toString());
 
-        for (let i = 1; i <= VIDEOS_PER_DAY; i++) {
-            // [시간 자동 분산] 설정된 정시에서 0~29분 사이의 랜덤 값을 더해 분산 처리
-            const timeStr = PUBLISH_TIMES[i - 1] || "22:00";
-            const [baseHour, baseMin] = timeStr.split(':').map(Number);
+        for (let i = 0; i < VIDEOS_PER_DAY; i++) {
+            const publishTime = PUBLISH_TIMES[i] || "22:00";
             
-            // 0~29분 랜덤 추가
-            const randomOffset = Math.floor(Math.random() * 30);
-            const totalMinutes = baseMin + randomOffset;
-            const finalHour = (baseHour + Math.floor(totalMinutes / 60)) % 24;
-            const finalMin = totalMinutes % 60;
-            
-            const publishTime = `${String(finalHour).padStart(2, '0')}:${String(finalMin).padStart(2, '0')}`;
-            
-            console.log(`\n--- [영상 ${i}/${VIDEOS_PER_DAY}] 작업 시작 (예약 시간: 오늘 ${publishTime}) ---`);
+            console.log(`\n--- [배치 작업 ${i + 1}/${VIDEOS_PER_DAY}] 시작 (예약 시간: ${publishTime}) ---`);
             
             // run_agent.js 실행 (자식 프로세스 완료 대기)
+            // 인덱스(i)를 인자로 전달하여 개별 파일명 및 장르 중복 방지 처리
             await new Promise((resolve) => {
-                const child = exec(`node run_agent.js`, {
+                const child = exec(`node run_agent.js ${i}`, {
                     cwd: __dirname,
                     env: { ...process.env, OZ_PUBLISH_TIME: publishTime }
                 }, (error, stdout, stderr) => {
                     if (error) {
-                        console.error(`❌ [영상 ${i}] 실행 중 오류 발생:`, error.message);
+                        console.error(`❌ [작업 ${i + 1}] 실행 중 치명적 오류 발생:`, error.message);
                     } else {
-                        console.log(stdout); // 실행 결과 로그 출력
+                        console.log(`✅ [작업 ${i + 1}] 엔진 로그 출력:`);
+                        console.log(stdout); 
                     }
                     resolve();
                 });
             });
-            console.log(`✅ [영상 ${i}] 생성 및 예약 업로드 패키징 프로세스 종료.`);
+            console.log(`[완료] #${i + 1} 영상 생성 및 예약 업로드 시퀀스 종료.`);
         }
         
         // 오늘 작업 완료 기록 저장
         await fs.writeJson(LAST_RUN_PATH, { date: today });
-        console.log(`\n[${new Date().toLocaleString()}] ✨ 오늘의 모든 자동화 작업이 성공적으로 완료되었습니다.`);
-        console.log(`[시스템] 자원을 반납하고 프로세스를 안전하게 전체 종료합니다.`);
+        console.log(`\n[${new Date().toLocaleString()}] ✨ 오늘의 모든 자동화 작업(${VIDEOS_PER_DAY}개)이 성공적으로 완료되었습니다.`);
+        console.log(`[시스템] 자원을 반납하고 프로세스를 안전하게 종료합니다.`);
         
     } catch (err) {
         console.error('❌ 시스템 실행 중 치명적 오류 발생:', err);

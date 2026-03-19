@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"f:/ProJectHome/AI MUSIC AGENT OZ\" status)"
+    ]
+  }
+}

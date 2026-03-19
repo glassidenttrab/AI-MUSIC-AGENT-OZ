@@ -119,7 +119,10 @@ async function uploadVideo(auth, videoFilePath, coverFilePath, title, descriptio
                     process.stdout.cursorTo(0);
                     process.stdout.write(`업로드 중... ${Math.round(progress)}% 완료`);
                 } else {
-                    console.log(`업로드 진행률: ${Math.round(progress)}% 완료`);
+                    // 비-TTY 환경(파일 리다이렉션 등)에서는 로그 중복 방지를 위해 특정 구간마다 출력
+                    if (Math.round(progress) % 10 === 0) {
+                        console.log(`업로드 진행률: ${Math.round(progress)}% 완료`);
+                    }
                 }
             },
         });
