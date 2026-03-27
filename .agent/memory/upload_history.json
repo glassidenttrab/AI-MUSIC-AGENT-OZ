@@ -1,0 +1,28 @@
+[
+    {
+        "timestamp": "2026-03-27T17:19:52.488Z",
+        "status": "evaluated",
+        "video_id": "mRUhmnYzVRw",
+        "metadata": {
+            "youtube_title": "네온 사인이 가득한 도시를 질주하는 듯한 다크 [Euphoric House] 무한 루프 🏎️",
+            "genre": "Euphoric House",
+            "mood": "Energetic & Nostalgic",
+            "prompt": "Euphoric House, Energetic & Nostalgic mood, characterized by Plucked Synth, with Soulful Echoes, themed around Cyberpunk Night Drive. High-quality production, professional mastering, immersive audio.",
+            "publish_at": null
+        },
+        "views_at_evaluation": 13780
+    },
+    {
+        "timestamp": "2026-03-28T02:56:42.000Z",
+        "status": "evaluated",
+        "video_id": "Ls8fnpWicdg",
+        "metadata": {
+            "youtube_title": "Emotional Euphoric House in the Rainy City 🎧 (1 Hour Loop)",
+            "genre": "Euphoric House",
+            "mood": "Energetic",
+            "prompt": "Euphoric House, Energetic mood, with Plucked Synth, Soulful Echoes, themed around Rainy Seoul City. High fidelity.",
+            "publish_at": null
+        },
+        "views_at_evaluation": 10887
+    }
+]

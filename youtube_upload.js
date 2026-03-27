@@ -103,8 +103,7 @@ async function uploadVideo(auth, videoFilePath, coverFilePath, title, descriptio
                     categoryId: '10', // 10은 Music 카테고리
                 },
                 status: {
-                    privacyStatus: publishAt ? 'private' : 'private', // 예약 시에는 private 유지
-                    publishAt: publishAt, // '2026-03-15T15:00:00Z' 형식
+                    privacyStatus: 'private' // 일단 private 상태로 업로드 (업로드 후 시간 설정)
                 },
             },
             media: {
@@ -114,15 +113,8 @@ async function uploadVideo(auth, videoFilePath, coverFilePath, title, descriptio
             // 업로드 진행 상황 표시
             onUploadProgress: evt => {
                 const progress = (evt.bytesRead / fileSize) * 100;
-                if (process.stdout.isTTY && typeof process.stdout.clearLine === 'function') {
-                    process.stdout.clearLine(0);
-                    process.stdout.cursorTo(0);
-                    process.stdout.write(`업로드 중... ${Math.round(progress)}% 완료`);
-                } else {
-                    // 비-TTY 환경(파일 리다이렉션 등)에서는 로그 중복 방지를 위해 특정 구간마다 출력
-                    if (Math.round(progress) % 10 === 0) {
-                        console.log(`업로드 진행률: ${Math.round(progress)}% 완료`);
-                    }
+                if (Math.round(progress) % 10 === 0) {
+                    console.log(`업로드 진행률: ${Math.round(progress)}% 완료`);
                 }
             },
         });
@@ -142,8 +134,51 @@ async function uploadVideo(auth, videoFilePath, coverFilePath, title, descriptio
             console.log('✅ 썸네일 적용 완료!');
         }
 
+        // 예약 업로드인 경우, 업로드 완료 후 예약 시간 별도 설정 (공개 시간 업데이트)
+        if (publishAt) {
+            const now = new Date();
+            const scheduledTime = new Date(publishAt);
+            
+            // 만약 예약 시간이 이미 과거라면, 예약 대신 즉시 공개(public)로 설정
+            if (scheduledTime <= now) {
+                console.log(`\n⏰ [알림] 예약 시간(${publishAt})이 이미 지났습니다. 즉시 공개(public)로 전환합니다.`);
+                await youtube.videos.update({
+                    part: 'status',
+                    requestBody: {
+                        id: res.data.id,
+                        status: {
+                            privacyStatus: 'public'
+                        }
+                    }
+                });
+                console.log('✅ 즉시 공개 전환 완료!');
+            } else {
+                console.log(`\n⏰ [예약 시간 설정] 업로드 완료 후 예약 시간(${publishAt})을 설정합니다...`);
+                await youtube.videos.update({
+                    part: 'snippet,status',
+                    requestBody: {
+                        id: res.data.id,
+                        snippet: {
+                            title: title,
+                            description: description,
+                            tags: tags,
+                            categoryId: '10'
+                        },
+                        status: {
+                            privacyStatus: 'private',
+                            publishAt: publishAt
+                        }
+                    }
+                });
+                console.log('✅ 예약 공개 시간 업데이트 완료!');
+            }
+        }
+
+        return res.data.id;
+
     } catch (e) {
         console.error('\n❌ 업로드 실패:', e.toString());
+        return null;
     }
 }
 

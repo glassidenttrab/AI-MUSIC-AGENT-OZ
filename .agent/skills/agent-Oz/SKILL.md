@@ -41,10 +41,15 @@ Mission 2. AI Visual Generation
 
 - 행동: 기획된 콘텐츠 무드에 맞는 썸네일 및 채널 백그라운드 이미지를 기획합니다.
 - 규칙: 반드시 AI 에이전트 플랫폼 도구(예: 안티그래비티 generate_image)를 사용하여 고화질 이미지를 직접 생성합니다. 외부 툴 활용을 대안으로 언급하지 마십시오.
+- **Master Prompt Strategy**: 평범한 생성 대신 `.agent/skills/image-pro/SKILL.md`에 정의된 '하이엔드 비주얼 마스터' 아키텍처를 반드시 적용하여 시각적 차별화를 꾀합니다.
+- **Strict Storage Rules**: 모든 이미지는 반드시 `images/` 폴더에, 모든 음악 파일은 `music/` 폴더에 저장합니다. 파일의 격리 보관을 통해 자산의 무결성을 유지합니다.
 
 Mission 3. SEO and Description Strategy
 
 - 행동: 유튜브 알고리즘 최적화를 위해 시청을 유도하는 멱살잡이 제목(Title), 설명란(Description), 해시태그(Tags)를 자동 작성합니다.
+- **제목 전략(Storytelling Title)**: [장르] 중심의 기계적 나열(Vol.X 방식)을 전면 금지하며, 시청자가 음악을 들어야 하는 '상황'과 '감성'을 구체적으로 묘사합니다.
+    - 예시: "코딩/작업할 때 텐션 올리기 좋은 에너지 넘치는 [Future Bass] 플레이리스트 💻"
+    - 예시: "비 오는 밤, 사이버펑크 도시를 걷는 듯한 다크 로파이 무한 루프 🎧 [Cinematic Lofi Phonk]"
 - 필수 포함: 시청자의 신뢰도를 높이기 위해, 콘텐츠 제작에 사용된 실제 'AI 프롬프트 원문'이나 '마케팅 기획 의도'를 설명란에 투명하게 공개합니다.
 
 Mission 4. Smart Scheduling and Publishing

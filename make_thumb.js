@@ -27,7 +27,7 @@ async function generateWithImagen(prompt, outputPath) {
     const result = await ai.models.generateImages({
         model: 'imagen-4.0-fast-generate-001',
         prompt: prompt,
-        config: { numberOfImages: 1 }
+        config: { numberOfImages: 1, aspectRatio: "16:9" }
     });
 
     if (result.generatedImages && result.generatedImages.length > 0) {
@@ -48,7 +48,7 @@ async function generateWithGeminiFlash(prompt, outputPath) {
     const ai = new GoogleGenAI({ apiKey });
     const result = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
-        contents: `Generate an image: ${prompt}`,
+        contents: `Generate a 16:9 widescreen landscape aspect ratio image: ${prompt}`,
         config: { responseModalities: ['IMAGE', 'TEXT'] }
     });
 
@@ -85,7 +85,7 @@ async function createDynamicThumbnail(sourcePath, outputPath, genre, mood) {
         const provider = getImageProvider();
         console.log(`\n[그래픽 디자인 봇] AI 썸네일 생성 중... (엔진: ${provider.toUpperCase()})`);
 
-        const thumbPrompt = `A cinematic anime style DJ mixing ${genre} music in a neon-lit futuristic studio, ${mood} vibes, cyberpunk aesthetic, wide banner composition, ultra detailed, 4k`;
+        const thumbPrompt = `Cinematic Masterpiece, 16:9 Widescreen Panorama, Neo-Cinematic, 8k Resolution. A hyper-realistic DJ mixing ${genre} music in a neon-lit futuristic studio. ${mood} vibes, cyberpunk aesthetic. Ultra detailed skin with fine pores, volumetric dust particles, analog film grain, rim lighting, dramatic shadows, bokeh haze, shot on 35mm lens.`;
 
         const tempPath = outputPath + '.tmp.png';
         await generateAIImage(thumbPrompt, tempPath);
@@ -127,11 +127,11 @@ async function createSlideVariants(sourcePath, slidesDir, genre, mood) {
         existingFiles.forEach(f => fs.removeSync(path.join(slidesDir, f)));
 
         const slideThemes = [
-            `A cinematic anime DJ girl mixing ${genre} music in a neon-lit futuristic studio at night, ${mood} vibes, cyberpunk aesthetic, ultra detailed, 4k`,
-            `An abstract digital art visualization of ${genre} music, flowing colorful energy waves and sound particles, ${mood} atmosphere, cosmic galaxy background, high quality`,
-            `A cozy lofi bedroom studio at night with panoramic city skyline view, ${genre} music equipment glowing, ${mood} mood, anime art style`,
-            `A futuristic holographic concert stage with floating musical instruments, ${genre} theme, ${mood} color palette, volumetric neon lighting, digital art`,
-            `A dreamy fantasy landscape with floating vinyl records and musical notes, ${genre} inspired, ${mood} ethereal aurora borealis sky, painterly style`,
+            `16:9 Widescreen Landscape, Cinematic 8k, Hyper-realistic DJ girl mixing ${genre} music in futuristic neon studio, 35mm grain, fine skin texture, ${mood} mood`,
+            `16:9 Widescreen Landscape, Abstract digital visualization of ${genre} audio waves, volumetric light, sound particles with lens flare, ${mood} cosmic atmosphere`,
+            `16:9 Widescreen Landscape, High-definition cozy studio with panoramic city view, neon glowing ${genre} equipment, analog film imperfections, ${mood} vibes`,
+            `16:9 Widescreen Landscape, Futuristic holographic stage, ${genre} instruments, rim lighting, 8k masterpiece, digital art with cinematic depth of field`,
+            `16:9 Widescreen Landscape, Dreamy landscape, floating vinyls, ${genre} theme, ethereal aurora sky, painterly but detailed texture, ${mood} atmospheric haze`
         ];
 
         const fontTitle = await Jimp.loadFont(Jimp.FONT_SANS_64_WHITE);
@@ -172,4 +172,52 @@ async function createSlideVariants(sourcePath, slidesDir, genre, mood) {
     }
 }
 
-module.exports = { createDynamicThumbnail, createSlideVariants, generateAIImage };
+// ============================================================
+//  [가사 반영 이미지 세트 생성] 3장 생성 (가사/테마 반영)
+// ============================================================
+async function createLyricThemedImages(lyrics, theme, genre, mood) {
+    try {
+        const provider = getImageProvider();
+        console.log(`\n[AI 비주얼 디렉터] 가사 및 테마를 반영한 이미지 3장을 제작합니다... (엔진: ${provider.toUpperCase()})`);
+
+        const promptEngineer = require('./prompt_engineer');
+        const scenes = await promptEngineer.generateVisualScenes(lyrics, theme);
+
+        const lyricsDir = path.join(__dirname, 'images', 'lyrics');
+        fs.ensureDirSync(lyricsDir);
+
+        const imagePaths = [];
+
+        for (let i = 0; i < scenes.length; i++) {
+            const scene = scenes[i];
+            const outputPath = path.join(lyricsDir, `lyric_scene_${i + 1}.png`);
+
+            // image-pro 스킬 기반 마스터 프롬프트 구성
+            const masterPrompt = `
+                Cinematic Masterpiece, 16:9 Widescreen Panorama Landscape, 8k Resolution, Neo-Cinematic with Analog Film Texture.
+                Goal: ${scene.goal} reflecting the theme '${theme}'.
+                Mood: ${scene.mood}, ${mood} vibes.
+                Style: Analog grain, cinematic depth, bokeh haze, hyperreal textures, volumetric lighting.
+                Technical: Shot on 35mm lens, f/1.8, professional color grading, immersive atmosphere.
+            `.replace(/\s+/g, ' ').trim();
+
+            console.log(`  🤖 장면 ${i + 1}/3 AI 이미지 생성 중...`);
+            await generateAIImage(masterPrompt, outputPath);
+
+            // 이미지 처리 (필요시 밝기 조절 등)
+            const image = await Jimp.read(outputPath);
+            image.brightness(-0.1); // 약간 어둡게 하여 가사 가독성 확보 가능성 열어둠
+            await image.writeAsync(outputPath);
+
+            imagePaths.push(outputPath);
+            console.log(`  ✅ 장면 ${i + 1}/3 완성: ${path.basename(outputPath)}`);
+        }
+
+        return imagePaths;
+    } catch (error) {
+        console.error('❌ 가사 반영 이미지 생성 중 오류:', error.message);
+        throw error;
+    }
+}
+
+module.exports = { createDynamicThumbnail, createSlideVariants, generateAIImage, createLyricThemedImages };

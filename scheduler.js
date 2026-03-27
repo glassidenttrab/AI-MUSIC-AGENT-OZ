@@ -1,10 +1,11 @@
 const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs-extra');
+const notificationService = require('./notification_service');
 
 // [설정] 하루에 생성할 영상 개수 및 시간 (24시간 형식)
-const VIDEOS_PER_DAY = 3;
-const PUBLISH_TIMES = ["12:00", "18:00", "21:00"]; // 분석 결과 가장 좋은 시간대
+const VIDEOS_PER_DAY = 1;
+const PUBLISH_TIMES = ["20:00"]; // 분석 결과 가장 조회수가 활발한 골든 타임
 const LOCK_PATH = path.join(__dirname, 'scheduler.lock'); // 중복 실행 방지용
 const LAST_RUN_PATH = path.join(__dirname, 'last_run.json'); // 마지막 실행 기록
 
@@ -52,15 +53,17 @@ async function runMainTask() {
             // run_agent.js 실행 (자식 프로세스 완료 대기)
             // 인덱스(i)를 인자로 전달하여 개별 파일명 및 장르 중복 방지 처리
             await new Promise((resolve) => {
-                const child = exec(`node run_agent.js ${i}`, {
+                const child = exec(`node run_agent.js ${i} >> latest_agent.log 2>&1`, {
                     cwd: __dirname,
                     env: { ...process.env, OZ_PUBLISH_TIME: publishTime }
-                }, (error, stdout, stderr) => {
+                }, async (error, stdout, stderr) => {
                     if (error) {
-                        console.error(`❌ [작업 ${i + 1}] 실행 중 치명적 오류 발생:`, error.message);
+                        const errorMsg = `❌ [작업 ${i + 1}] 실행 중 치명적 오류 발생: ${error.message}`;
+                        console.error(errorMsg);
+                        // [긴급 알림] 장애 발생 시 즉각 이메일 발송
+                        await notificationService.sendAlert(`[긴급] #${i + 1} 작업 실패`, errorMsg);
                     } else {
-                        console.log(`✅ [작업 ${i + 1}] 엔진 로그 출력:`);
-                        console.log(stdout); 
+                        console.log(`✅ [작업 ${i + 1}] 엔진 작업이 정상 종료되었습니다.`);
                     }
                     resolve();
                 });
@@ -71,6 +74,16 @@ async function runMainTask() {
         // 오늘 작업 완료 기록 저장
         await fs.writeJson(LAST_RUN_PATH, { date: today });
         console.log(`\n[${new Date().toLocaleString()}] ✨ 오늘의 모든 자동화 작업(${VIDEOS_PER_DAY}개)이 성공적으로 완료되었습니다.`);
+        
+        // 3. [추가] 모니터링 모듈 호출 (사후 점검)
+        console.log(`\n[모니터링] 시스템 최종 상태 점검을 시작합니다...`);
+        await new Promise((resolve) => {
+            exec(`node monitor.js`, { cwd: __dirname }, (error, stdout, stderr) => {
+                if (stdout) console.log(stdout);
+                resolve();
+            });
+        });
+
         console.log(`[시스템] 자원을 반납하고 프로세스를 안전하게 종료합니다.`);
         
     } catch (err) {

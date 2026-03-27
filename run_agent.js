@@ -1,9 +1,17 @@
+// [안정성 패치] 비-터미널 환경(로그 리다이렉션 등)에서 clearLine/cursorTo 오류 방지
+[process.stdout, process.stderr].forEach(s => {
+    if (s && (!s.isTTY || typeof s.clearLine !== 'function')) {
+        s.clearLine = s.clearLine || ((dir) => {});
+        s.cursorTo = s.cursorTo || ((x, y) => {});
+    }
+});
+
 const path = require('path');
 const fs = require('fs-extra');
 const { createSlideshowVideo } = require('./make_video');
 const { generateMusic } = require('./generate_music');
 const { authorize, uploadVideo } = require('./youtube_upload');
-const { createDynamicThumbnail, createSlideVariants } = require('./make_thumb');
+const { createDynamicThumbnail, createSlideVariants, createLyricThemedImages } = require('./make_thumb');
 
 async function main() {
     console.log('====== [AI MUSIC AGENT OZ] 엔진 통합 모듈 가동 ======');
@@ -22,73 +30,90 @@ async function main() {
         const now = new Date();
         const dateString = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}`;
 
-        const musicDir = path.join(__dirname, 'MUSIC');
+        const musicDir = path.join(__dirname, 'music');
 
-        // [OZ 에이전트 인공지능 뇌 확장] 동적 컨셉 생성기
-        const genres = ["Jazz Hip Hop", "Cyberpunk EDM", "Chillout Deep House", "Cinematic Lofi Phonk", "Synthwave", "Ambient Electronic", "Future Bass"];
-        const moods = ["Relaxing", "Energetic", "Melancholy", "Dreamy", "Futuristic", "Dark and Gritty", "Upbeat", "Chill"];
-        const tempos = ["slow tempo", "mid-tempo", "fast paced", "driving beat", "laid back rhythm"];
+        // 2. 비디오 합성 소스 정의 및 지능형 프롬프트 생성 (5단계 구조 적용)
+        const promptEngineer = require('./prompt_engineer');
+        const promptData = promptEngineer.generateStructuredPrompt(runIndex);
+        const { fullPrompt, lyrics, storytellingTitle, components } = promptData;
+        const { genre, mood, instrument, vocal, theme } = components;
 
-        // 인덱스를 활용해 매번 다른 시드값을 가질 수 있도록 유도
-        const randomSeed = Math.floor(Math.random() * 1000) + runIndex;
-        const selectedGenre = genres[(Math.floor(Math.random() * genres.length) + runIndex) % genres.length];
-        const selectedMood = moods[(Math.floor(Math.random() * moods.length) + runIndex) % moods.length];
-        const selectedTempo = tempos[(Math.floor(Math.random() * tempos.length) + runIndex) % tempos.length];
-
-        // 장르명과 생성일자, 인덱스를 결합하여 저장 경로 지정 (중복 방지)
-        const genreTitleSafe = selectedGenre.replace(/\s+/g, '_'); 
-        const audioFileName = `${genreTitleSafe}_${dateString}_${runIndex}.mp3`;
+        // 장르명과 제목, 생성일자, 인덱스를 결합하여 저장 경로 지정 (중복 방지 및 직관성 향상)
+        const genreSafe = genre.replace(/\s+/g, '_'); 
+        const titleSafe = theme.replace(/\s+/g, '_');
+        const baseFileName = `${genreSafe}_${titleSafe}_${dateString}_${runIndex}`;
+        
+        const audioFileName = `${baseFileName}.mp3`;
         const audioFile = path.join(musicDir, audioFileName);
+        const videoDir = path.join(__dirname, 'videos');
+        const videoOutput = path.join(videoDir, `${baseFileName}.mp4`);
 
         // 썸네일 소스와 결과 출력 파일명에 인덱스 부여 하여 덮어쓰기 방지
-        const originalThumbFile = path.join(__dirname, 'sample_thumb.png');
-        const generatedThumbFile = path.join(__dirname, `final_thumb_${runIndex}.png`);
-        const videoOutput = path.join(__dirname, `final_output_${runIndex}.mp4`);
+        const originalThumbFile = path.join(__dirname, 'images', 'sample_thumb.png');
+        const generatedThumbFile = path.join(__dirname, 'images', `final_thumb_${runIndex}.png`);
+        
+        fs.ensureDirSync(videoDir);
 
         // 음악 길이 설정 (기본 181초, 환경변수로 조절 가능)
+        // [롱폼 전용] 최소 3분(181초) 이상으로 설정하여 숏츠 자동 전환 방지
         const musicDuration = process.env.OZ_MUSIC_DURATION ? parseInt(process.env.OZ_MUSIC_DURATION) : 181;
-        console.log(`\n[2/4] Google Lyria RealTime 가동 - 완전 자동 작곡 단계 (${musicDuration}초)...`);
-        const promptText = `${selectedMood} ${selectedGenre} with ${selectedTempo}, high quality production, atmospheric, instrumental`;
-        console.log(`🧠 AI 뇌 생성 테마 -> ${promptText}`);
+        console.log(`\n[2/4] Google Lyria RealTime 가동 - 지능형 5단계 작곡 단계 (${musicDuration}초)...`);
+        console.log(`🧠 AI 뇌 생성 테마 (5 steps) -> ${fullPrompt}`);
+        if (lyrics) console.log(`🎤 가사 포함 생성 시작...`);
 
-        // 음악 생성
-        await generateMusic(promptText, audioFileName, musicDuration);
+        // 음악 생성 (기존 파일 없을 시)
+        if (!fs.existsSync(audioFile)) {
+            await generateMusic(fullPrompt, audioFileName, musicDuration, lyrics);
+        } else {
+            console.log(`\n🎵 [알림] 기존 파일 [${audioFileName}]을 활용해 영상 합성을 진행합니다.`);
+        }
 
-        // 파일 유효성 검사
+        // 파일 유효성 검사 (없을 경우 조용히 넘어가지 않도록 강력한 에러 발생)
         if (!fs.existsSync(audioFile) || !fs.existsSync(originalThumbFile)) {
-            console.error('❌ 소스 파일이 존재하지 않아 합성을 중지합니다.');
-            return;
+            throw new Error(`❌ 필수 소스 파일 누락으로 합성을 중지합니다. 확인 필요: audioFile=${fs.existsSync(audioFile)}, thumbFile=${fs.existsSync(originalThumbFile)}`);
         }
 
         // 3. 썸네일 및 슬라이드쇼 이미지 생성
-        await createDynamicThumbnail(originalThumbFile, generatedThumbFile, selectedGenre, selectedMood);
+        await createDynamicThumbnail(originalThumbFile, generatedThumbFile, genre, mood);
 
-        const slidesDir = path.join(__dirname, 'slides');
-        const slideImages = await createSlideVariants(originalThumbFile, slidesDir, selectedGenre, selectedMood);
+        const slidesDir = path.join(__dirname, 'images', 'slides');
+        const genericSlides = await createSlideVariants(originalThumbFile, slidesDir, genre, mood);
+        
+        // [신규] 가사 및 테마 반영 이미지 3장 생성
+        const lyricImages = await createLyricThemedImages(lyrics, theme, genre, mood);
+        
+        // 가사 이미지와 일반 슬라이드를 결합 (가사 이미지를 앞쪽에 배치하여 강조)
+        const slideImages = [...lyricImages, ...genericSlides];
 
         // 4. 슬라이드쇼 비디오 렌더링
         console.log('\n[3/4] 슬라이드쇼 영상 합성 및 인코딩을 시작합니다...');
-        await createSlideshowVideo(slideImages, audioFile, videoOutput, 10);
+        await createSlideshowVideo(slideImages, audioFile, videoOutput, 12);
         console.log('\n✅ 최종 슬라이드쇼 비디오 합성 완료:', videoOutput);
 
         // 5. 메타데이터 및 유튜브 자동 송출 시작
         console.log('\n[4/4] 완성된 영상을 유튜브에 업로드하기 위한 패키징 진행 중...');
 
-        const title = `[${selectedGenre}] ${selectedMood} 감성의 무한 루프 플레이리스트 🎧 | 2026 Trend Vol.${runIndex + 1}`;
-        const description = `본 채널은 데이터 분석 기반 AI MUSIC AGENT 시스템에 의해 100% 자율 운영됩니다. 매일 새로운 무드와 장르를 결합하여 음악을 자동 생성합니다. (Series #${runIndex + 1})
+        const title = storytellingTitle;
+        const description = `본 영상은 유튜브 TOP 100 메타데이터 분석 기반 AI MUSIC AGENT [OZ] 시스템에 의해 100% 자율 구성되었습니다.
 
-▶ 오늘의 생성 테마 (AI Prompt):
-- 장르: ${selectedGenre}
-- 무드: ${selectedMood}
-- 템포: ${selectedTempo}
+▶ 오늘의 생성 큐레이션 (Structured Prompt):
+- 1. 장르/시대: ${genre}
+- 2. 템포/무드: ${mood}
+- 3. 특정 악기: ${instrument}
+- 4. 보컬 스타일: ${vocal}
+- 5. 가사/주제: ${theme}
 
-▶ Tracklist (Generated automatically by OZ Engine)
-- 00:00 ${selectedMood} ${selectedGenre} Original Mix
+▶ Tracklist (Generated by OZ Engine)
+- 00:00 ${mood} ${genre} Original Mix (feat. ${instrument})
 
-* Background Art Concept:
-A cinematic, chill lofi anime style illustration for a YouTube channel banner. A futuristic cyberpunk DJ mixing music.`;
+▶ Lyrics (Generated by OZ):
+${lyrics}
 
-        const tags = [selectedGenre.replace(/\s+/g, ''), selectedMood.replace(/\s+/g, ''), "AIMusic", "OZAGENT", "Trending2026", "Instrumental", "Playlist"];
+▶ AI System Log:
+- Target SEO Keywords: Official Music Video, 4K, ${genre}, ${mood}
+- Concept: A cinematic visual with ${mood} mood, capturing ${theme}.`;
+
+        const tags = [genre.replace(/\s+/g, ''), mood.replace(/\s+/g, ''), instrument.replace(/\s+/g, ''), "AIMusic", "OZAGENT", "Widescreen", "1080p", "Longform"];
 
         // 유튜브 예약 시간 설정 (환경변수 OZ_PUBLISH_TIME: "HH:mm" 형식)
         let publishAt = null;
@@ -97,18 +122,86 @@ A cinematic, chill lofi anime style illustration for a YouTube channel banner. A
             const scheduledDate = new Date();
             scheduledDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
             
-            // 만약 예약 시간이 이미 지났다면 내일로 설정
+            // [지능형 스케줄링] 현재 시간보다 예약 시간이 미래라면 오늘로, 과거라면 내일로 설정
             if (scheduledDate < new Date()) {
                 scheduledDate.setDate(scheduledDate.getDate() + 1);
             }
+            
             publishAt = scheduledDate.toISOString();
-            console.log(`📅 예약 업로드 설정: ${publishAt}`);
+            console.log(`📅 예약 업로드 성공적 설정: ${publishAt}`);
         }
 
-        // 유튜브 모듈 호출
-        await uploadVideo(auth, videoOutput, generatedThumbFile, title, description, tags, publishAt);
+        // [신규] 생성 결과 리포트 작성 (reports 폴더)
+        const reportDir = path.join(__dirname, 'reports');
+        const reportFile = path.join(reportDir, `${baseFileName}.md`);
+        const reportContent = `# [AI MUSIC AGENT OZ] 생성 리포트\n\n` +
+            `## 🎵 노래 정보\n` +
+            `- **제목**: ${theme}\n` +
+            `- **장르**: ${genre}\n` +
+            `- **무드**: ${mood}\n` +
+            `- **사용한 악기**: ${instrument}\n` +
+            `- **보컬 스타일**: ${vocal}\n\n` +
+            `## 🎤 가사\n` +
+            `\`\`\`\n${lyrics}\n\`\`\`\n\n` +
+            `## 📂 파일 정보\n` +
+            `- **음원**: ${audioFileName}\n` +
+            `- **영상**: ${baseFileName}.mp4\n` +
+            `- **생성 일시**: ${now.toLocaleString()}\n` +
+            `- **예약 공개**: ${publishAt || '미설정 (즉시 공개)'}`;
 
-        console.log(`\n====== [AI MUSIC AGENT OZ] #${runIndex + 1} 사이클 성공 종료 ======`);
+        await fs.ensureDir(reportDir);
+        await fs.writeFile(reportFile, reportContent, 'utf8');
+        console.log(`\n📄 [리포트 생성] 가사 및 메타데이터가 저장되었습니다: ${reportFile}`);
+
+        // 유튜브 모듈 호출
+        const videoId = await uploadVideo(auth, videoOutput, generatedThumbFile, title, description, tags, publishAt);
+
+        if (videoId) {
+            console.log(`\n====== [AI MUSIC AGENT OZ] #${runIndex + 1} 사이클 성공 종료 ======`);
+            
+            // [자율 에이전트 메모리 연동] 업로드 이력 기록
+            const memoryDir = path.join(__dirname, '.agent', 'memory');
+            const memoryFile = path.join(memoryDir, 'upload_history.json');
+            
+            await fs.ensureDir(memoryDir);
+            
+            let history = [];
+            if (fs.existsSync(memoryFile)) {
+                try {
+                    history = await fs.readJson(memoryFile);
+                } catch (e) {
+                    history = [];
+                }
+            }
+            
+            history.push({
+                timestamp: new Date().toISOString(),
+                status: "published",
+                video_id: videoId,
+                metadata: {
+                    youtube_title: title,
+                    genre: genre,
+                    mood: mood,
+                    prompt: fullPrompt,
+                    publish_at: publishAt
+                }
+            });
+            
+            await fs.writeJson(memoryFile, history, { spaces: 4 });
+            console.log(`[메모리] #${runIndex + 1} 업로드 이력이 저장되었습니다.`);
+
+            // [지능형 피드백 루프 자동화] 업로드 후 성과 분석 엔진 실행
+            console.log(`\n🔎 [오즈 메모리 엔진] 성과 분석 및 피드백 루프를 가동합니다...`);
+            const { execSync } = require('child_process');
+            try {
+                const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+                const feedbackScript = path.join(__dirname, '.agent', 'tools', 'evaluate_feedback.py');
+                const feedbackOutput = execSync(`${pythonCmd} "${feedbackScript}"`, { encoding: 'utf8' });
+                console.log(feedbackOutput);
+            } catch (err) {
+                console.warn(`⚠️ 성과 분석 도중 경미한 오류가 발생했으나 업로드는 완료되었습니다: ${err.message}`);
+            }
+        }
         
         // scheduler.js에서 루프를 돌릴 때 프로세스가 종료되지 않게 main 함수 종료로 마무리
         // (단일 실행 시를 위해 exit는 require.main 체크 부분에서 처리)
