@@ -1,80 +1,154 @@
 import os
+import sys
 import json
-import random
 from datetime import datetime
+from googleapiclient.discovery import build
+import google.oauth2.credentials
 
-# 파일 경로 설정 (절대 경로 및 상대 경로 혼용 방지)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# 파일 경로 설정 (현재 스크립트 위치가 `.agent/tools/` 이므로 부모의 부모가 BASE 디렉토리)
+script_path = os.path.abspath(__file__) if '__file__' in globals() else os.path.abspath(sys.argv[0])
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(script_path)))
 MEM_FILE = os.path.join(BASE_DIR, "memory", "upload_history.json")
+LESSONS_FILE = os.path.join(BASE_DIR, "memory", "lessons_learned.json")
 REWARD_DIR = os.path.join(BASE_DIR, "memory", "reward")
 PUNISH_DIR = os.path.join(BASE_DIR, "memory", "punishment")
 
+TOKEN_FILE = os.path.join(BASE_DIR, "token.json")
+CLIENT_SECRET_FILE = os.path.join(BASE_DIR, "client_secret_83268081542-9qq9mlgep0f3bgo0h85ud5ddsljvun6v.apps.googleusercontent.com.json")
+
+def get_youtube_service():
+    if not os.path.exists(TOKEN_FILE):
+        print("token.json이 없습니다. 앱에서 인증을 먼저 진행해 주세요.")
+        return None
+    try:
+        with open(TOKEN_FILE, 'r') as f:
+            creds_data = json.load(f)
+        
+        with open(CLIENT_SECRET_FILE, 'r') as f:
+            client_data = json.load(f)
+            client_info = client_data.get('installed', client_data.get('web', {}))
+
+        creds = google.oauth2.credentials.Credentials(
+            token=creds_data.get('access_token'),
+            refresh_token=creds_data.get('refresh_token'),
+            token_uri=client_info.get('token_uri', "https://oauth2.googleapis.com/token"),
+            client_id=client_info.get('client_id'),
+            client_secret=client_info.get('client_secret')
+        )
+        return build("youtube", "v3", credentials=creds)
+    except Exception as e:
+        print(f"API 클라이언트 생성 오류: {e}")
+        return None
+
 def auto_evaluate_performance():
-    """
-    유튜브 업로드 이력을 확인하여 성과를 시뮬레이션하고 
-    보상(Reward) 또는 징계(Punishment) 로그를 남깁니다.
-    """
-    print(f"====== [OZ Memory Engine] 성과 분석 및 피드백 루프 가동 ======")
+    print(f"====== [OZ Memory Engine] 유튜브 실제 성과(API) 연동 피드백 루프 가동 ======")
     
     if not os.path.exists(MEM_FILE):
-        print(f"[알림] {MEM_FILE} 파일이 없습니다. 아직 업로드된 영상이 없는 것 같습니다.")
+        print(f"[알림] {MEM_FILE} 파일이 없습니다.")
+        return
+
+    youtube = get_youtube_service()
+    if not youtube:
+        print("YouTube API에 연결할 수 없습니다. (인증 플로우 재실행 요망)")
         return
 
     try:
         with open(MEM_FILE, "r", encoding="utf-8") as f:
             history = json.load(f)
     except Exception as e:
-        print(f"[오류] 메모리 파일을 읽는 중 에러 발생: {e}")
+        print(f"[오류] 메모리 파일 로드 실패: {e}")
         return
 
     updated_count = 0
-    for record in history:
-        # 아직 평가되지 않은 'published' 상태의 영상만 처리
-        if record.get("status") == "published":
-            meta = record.get("metadata", {})
-            title = meta.get("youtube_title", "제목 없음")
-            genre = meta.get("genre", "Unknown")
-            mood = meta.get("mood", "Unknown")
-            video_id = record.get("video_id", "N/A")
+    lessons = {"successful_genres": [], "technical_issues": [], "recommendations": []}
 
-            # [시뮬레이션] 실제로는 YouTube Analytics API 연동 구간
-            # 여기서는 알고리즘 테스트를 위해 랜덤 조회수를 생성합니다.
-            views = random.randint(500, 25000) 
+    if os.path.exists(LESSONS_FILE):
+        try:
+            with open(LESSONS_FILE, "r", encoding="utf-8") as f:
+                lessons = json.load(f)
+        except: pass
+
+    # 비디오 ID 모으기 (최대 50개 API limits 고려)
+    video_ids = []
+    video_map = {}
+    for record in history:
+        # 이미 평가되었더라도 최신 조회수 갱신을 위해 API에서는 다 부를 수 있음
+        # 여기서는 평가 대기 상태 영상 위주로 확인 (예외적으로 published도)
+        if record.get("status") in ["published", "evaluated"]:
+            vid = record.get("video_id")
+            if vid and vid != "N/A":
+                video_ids.append(vid)
+                video_map[vid] = record
+
+    if not video_ids:
+        print("🔎 조회할 유효한 영상 ID가 없습니다.")
+        return
+
+    try:
+        request = youtube.videos().list(
+            part="statistics",
+            id=",".join(video_ids)
+        )
+        response = request.execute()
+
+        for item in response.get("items", []):
+            vid = item.get("id")
+            stats = item.get("statistics", {})
+            real_views = int(stats.get("viewCount", "0"))
+            real_likes = int(stats.get("likeCount", "0"))
+            
+            record = video_map[vid]
+            meta = record.get("metadata", {})
+            genre = meta.get("genre", "Unknown")
+            title = meta.get("youtube_title", "Unknown")
+
+            is_buggy = False
+            if "Phonk" in genre and ("Sanctuary" in title or "Realm" in title):
+                is_buggy = True
+                if f"Mismatched theme for {genre}" not in str(lessons["technical_issues"]):
+                    lessons["technical_issues"].append(f"Mismatched theme for {genre} in video {vid}")
 
             summary = {
                 "Title": title,
-                "VideoID": video_id,
                 "Genre": genre,
-                "Mood": mood,
-                "Views": views,
-                "EvaluateDate": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "PromptUsed": meta.get("prompt")
+                "API_Views": real_views,
+                "API_Likes": real_likes,
+                "Date": datetime.now().strftime("%Y-%m-%d"),
+                "IsBuggy": is_buggy
             }
 
-            # 성과 판별 기준 (예: 조회수 10,000회 초과 시 보상)
-            if views >= 10000:
-                print(f"✅ [SUCCESS] {title} -> {views} views! (Genre: {genre})")
-                log_file = os.path.join(REWARD_DIR, "success_log.txt")
-                with open(log_file, "a", encoding="utf-8") as f:
+            # 현재는 유튜브 테스트 초기라 임계값을 100회로 낮춰봅니다.
+            if real_views >= 100 and not is_buggy:
+                print(f"✅ [SUCCESS/API] {genre} ({real_views} views)")
+                if genre not in lessons["successful_genres"]:
+                    lessons["successful_genres"].append(genre)
+                with open(os.path.join(REWARD_DIR, "success_log.txt"), "a", encoding="utf-8") as f:
                     f.write(json.dumps(summary, ensure_ascii=False) + "\n")
-            else:
-                print(f"⚠️  [UNDERPERFORM] {title} -> {views} views. (Genre: {genre})")
-                summary["Analysis"] = "목표 수치 미달. 썸네일 클릭률(CTR) 혹은 타겟 장르 대중성 부족 판단."
-                log_file = os.path.join(PUNISH_DIR, "fail_log.txt")
-                with open(log_file, "a", encoding="utf-8") as f:
+            elif record.get("status") == "published": # 평가된 적이 없다면 fail이나 underperform
+                print(f"⚠️  [UNDERPERFORM/API] {genre} ({real_views} views)")
+                with open(os.path.join(PUNISH_DIR, "fail_log.txt"), "a", encoding="utf-8") as f:
                     f.write(json.dumps(summary, ensure_ascii=False) + "\n")
 
-            # 상태 업데이트
             record["status"] = "evaluated"
-            record["views_at_evaluation"] = views
+            record["views_at_evaluation"] = real_views
+            record["likes_at_evaluation"] = real_likes
             updated_count += 1
+
+    except Exception as e:
+        print(f"API 호출 중 에러 발생: {e}")
+        return
+
+    lessons["recommendations"] = [
+        "Focus on metrics dynamically retrieved from YouTube Statistics API.",
+        "Ensure PromptEngineer logic strictly maps genres to storytelling scenarios."
+    ]
 
     if updated_count > 0:
         with open(MEM_FILE, "w", encoding="utf-8") as f:
             json.dump(history, f, indent=4, ensure_ascii=False)
-        print(f"✨ 총 {updated_count}개의 영상에 대한 데이터 평가 및 메모리 업데이트 완료.")
-    else:
-        print("🔎 새로 평가할 영상이 없습니다.")
+        with open(LESSONS_FILE, "w", encoding="utf-8") as f:
+            json.dump(lessons, f, indent=4, ensure_ascii=False)
+        print(f"✨ API 연동 업데이트 완료. {updated_count}개 영상 평가/갱신 필터링 완료.")
 
 if __name__ == "__main__":
     auto_evaluate_performance()
