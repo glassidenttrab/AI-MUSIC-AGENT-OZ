@@ -20,3 +20,11 @@ tmp_*.js
 agent_debug.log
 scheduler.log
 scheduler_auto.log
+
+# Large Binaries & Temporary Outputs
+ComfyUI*
+loops/
+memory/logs/
+*.7z
+pm2_*.json
+current_procs*.json

@@ -18,16 +18,19 @@ def generate_music_with_lyria(prompt, output_filename="result_music.mp3", is_pro
         output_filename (str): 저장할 파일 형식 이름 (기본값: result_music.mp3)
         is_pro (bool): True이면 최대 3분 완곡 Pro 모델, False이면 30초 Clip 모델 사용
     """
-    # 1. 환경 변수에서 API 키 자동 불러오기 (보안)
-    load_dotenv()
-    
-    # 일반적인 GEMINI_API_KEY 또는 여러 개의 GEMINI_API_KEYS(콤마 구분) 모두 호환 가능하게 설정
-    api_key_env = os.getenv("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEYS")
+    # 1. API 키 설정 (자바스크립트 래퍼에서 전달한 키 우선 사용)
+    # [수정] load_dotenv()는 명시적으로 호출하지 않거나, 기존 환경변수를 보호하도록 설정
+    api_key_env = os.getenv("GEMINI_API_KEY") 
     
     if not api_key_env:
-        print("❌ 인증 에러: 동일 폴더의 .env 파일에 GEMINI_API_KEY를 설정해주세요!")
+        load_dotenv()
+        api_key_env = os.getenv("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEYS")
+    
+    if not api_key_env:
+        print("❌ 인증 에러: API 키를 찾을 수 없습니다!")
         return
         
+    # 만약 여러 개가 콤마로 들어왔다면, 첫 번째 것을 사용 (보통 래퍼가 이미 하나씩 쪼개서 줌)
     api_key = api_key_env.split(",")[0].strip()
     
     # 2. 제미나이 클라이언트 초기화 및 목적에 맞는 모델 자동 세팅
@@ -41,18 +44,40 @@ def generate_music_with_lyria(prompt, output_filename="result_music.mp3", is_pro
     print(f"⏳ 대기 시간 안내: 생성 중입니다. 곡의 길이에 따라 1~3분 이상 소요될 수 있습니다...")
 
     try:
-        # 3. 오디오 전용 응답 모달리티 및 가사 설정
+        # 3. 오디오 전용 응답 모달리티 및 안전 설정(필터링 완화) 적용
         response = client.models.generate_content(
             model=model_id,
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_modalities=["AUDIO"],
+                safety_settings=[
+                    types.SafetySetting(
+                        category="HARM_CATEGORY_HARASSMENT",
+                        threshold="BLOCK_NONE",
+                    ),
+                    types.SafetySetting(
+                        category="HARM_CATEGORY_HATE_SPEECH",
+                        threshold="BLOCK_NONE",
+                    ),
+                    types.SafetySetting(
+                        category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                        threshold="BLOCK_NONE",
+                    ),
+                    types.SafetySetting(
+                        category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                        threshold="BLOCK_NONE",
+                    ),
+                ],
             )
         )
         
         if not response:
             print("❌ 에러: API 응답이 비어있습니다. (Response is None)")
             return
+
+        # 디버깅: 응답 상태 확인
+        if hasattr(response, 'usage_metadata'):
+            print(f"📊 Usage: {response.usage_metadata}")
 
         # 4. 응답 데이터에서 음원 파일 추출
         candidates = getattr(response, 'candidates', [])

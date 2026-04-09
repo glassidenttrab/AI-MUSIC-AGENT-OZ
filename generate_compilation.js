@@ -54,7 +54,8 @@ async function generateCompilation(baseTheme, targetMinutes = 60) {
         // 만약 1시간 내내 보컬 없는 BGM을 원하시면 아래 주석 해제하여 강제 조정 가능
         // trackInfo.fullPrompt += " [Instrumental BGM]";
 
-        await generateMusic(trackInfo.fullPrompt, tempFilename, 181, null);
+        // 테마별 카테고리(baseTheme) 전달
+        await generateMusic(trackInfo.fullPrompt, tempFilename, 181, null, baseTheme);
         
         // 생성된 파일을 작업 폴더로 이동
         const generatedPath = path.join(__dirname, 'music', tempFilename);
@@ -84,6 +85,15 @@ async function generateCompilation(baseTheme, targetMinutes = 60) {
     console.log(`📍 파일 위치: ${finalVideoPath}`);
     console.log(`📊 투입 비용: $${(audioPaths.length * 0.08).toFixed(2)} (${audioPaths.length}곡)`);
     console.log("=".repeat(50));
+
+    const metadata = {
+        runId,
+        theme: baseTheme,
+        targetMinutes,
+        trackCount: audioPaths.length,
+        timestamp: new Date().toISOString()
+    };
+    await fs.writeJson(path.join(outputDir, 'metadata.json'), metadata, { spaces: 4 });
 
     return finalVideoPath;
 }

@@ -17,17 +17,39 @@ function getImageProvider() {
 }
 
 // ============================================================
-//  [엔진 1] Google Imagen 4.0 Fast ($0.02/장, 최고 품질)
+//  [API 키 관리 및 클라이언트 획득]
+//  여러 개의 키를 순회하며 작동하는 클라이언트를 반환합니다.
 // ============================================================
-async function generateWithImagen(prompt, outputPath) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error('GEMINI_API_KEY가 .env에 없습니다.');
+async function getWorkingAI() {
+    const rawKeys = process.env.GEMINI_API_KEY;
+    if (!rawKeys) throw new Error('GEMINI_API_KEY가 .env에 없습니다.');
+    const keys = rawKeys.split(',').map(k => k.trim());
+    
+    for (const key of keys) {
+        try {
+            const ai = new GoogleGenAI({ apiKey: key });
+            // 간단하게 모델 목록을 조회하여 키의 유효성을 검사합니다.
+            await ai.models.list(); 
+            return ai;
+        } catch (e) {
+            console.warn(`⚠️ API Key [${key.substring(0, 8)}...] 사용 불가: ${e.message}`);
+        }
+    }
+    throw new Error('모든 GEMINI_API_KEY가 유효하지 않거나 할당량을 초과했습니다.');
+}
 
-    const ai = new GoogleGenAI({ apiKey });
+// ============================================================
+//  [엔진 1] Google Imagen 4.0 ($0.02/장, 최고 품질)
+// ============================================================
+async function generateWithImagen(prompt, outputPath, isVertical = false) {
+    const ai = await getWorkingAI();
     const result = await ai.models.generateImages({
-        model: 'imagen-4.0-fast-generate-001',
+        model: 'imagen-4.0-generate-001',
         prompt: prompt,
-        config: { numberOfImages: 1, aspectRatio: "16:9" }
+        config: { 
+            numberOfImages: 1, 
+            aspectRatio: isVertical ? "9:16" : "16:9" 
+        }
     });
 
     if (result.generatedImages && result.generatedImages.length > 0) {
@@ -39,17 +61,16 @@ async function generateWithImagen(prompt, outputPath) {
 }
 
 // ============================================================
-//  [엔진 2] Gemini 2.5 Flash Image (무료! 하루 500장)
+//  [엔진 2] Gemini 3.1 Flash Image (무료! 하루 500장)
 // ============================================================
-async function generateWithGeminiFlash(prompt, outputPath) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error('GEMINI_API_KEY가 .env에 없습니다.');
-
-    const ai = new GoogleGenAI({ apiKey });
+async function generateWithGeminiFlash(prompt, outputPath, isVertical = false) {
+    const ai = await getWorkingAI();
+    const aspectPrompt = isVertical ? "9:16 vertical portrait mobile wallpaper aspect ratio" : "16:9 widescreen landscape aspect ratio";
+    
     const result = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: `Generate a 16:9 widescreen landscape aspect ratio image: ${prompt}`,
-        config: { responseModalities: ['IMAGE', 'TEXT'] }
+        model: 'gemini-3.1-flash-image-preview',
+        contents: [{ role: 'user', parts: [{ text: `Generate a ${aspectPrompt} image: ${prompt}` }] }],
+        config: { responseModalities: ['IMAGE'] }
     });
 
     const parts = result.candidates[0].content.parts;
@@ -64,16 +85,24 @@ async function generateWithGeminiFlash(prompt, outputPath) {
 }
 
 // ============================================================
-//  [통합 라우터] 설정에 따라 적절한 엔진으로 분배
+//  [통합 라우터] 설정에 따라 적절한 엔진으로 분배 (실패 시 상호 백업)
 // ============================================================
-async function generateAIImage(prompt, outputPath) {
+async function generateAIImage(prompt, outputPath, isVertical = false) {
     const provider = getImageProvider();
 
-    if (provider === 'imagen') {
-        return await generateWithImagen(prompt, outputPath);
-    } else {
-        // 기본값: gemini-flash (무료)
-        return await generateWithGeminiFlash(prompt, outputPath);
+    try {
+        if (provider === 'imagen') {
+            return await generateWithImagen(prompt, outputPath, isVertical);
+        } else {
+            return await generateWithGeminiFlash(prompt, outputPath, isVertical);
+        }
+    } catch (error) {
+        console.warn(`⚠️ [${provider.toUpperCase()}] 생성 실패, 백업 엔진으로 시도합니다...`);
+        if (provider === 'imagen') {
+            return await generateWithGeminiFlash(prompt, outputPath, isVertical);
+        } else {
+            return await generateWithImagen(prompt, outputPath, isVertical);
+        }
     }
 }
 
@@ -175,7 +204,7 @@ async function createSlideVariants(sourcePath, slidesDir, genre, mood) {
 // ============================================================
 //  [가사 반영 이미지 세트 생성] 3장 생성 (가사/테마 반영)
 // ============================================================
-async function createLyricThemedImages(lyrics, theme, genre, mood) {
+async function createLyricThemedImages(lyrics, theme, genre, mood, category = "General") {
     try {
         const provider = getImageProvider();
         console.log(`\n[AI 비주얼 디렉터] 가사 및 테마를 반영한 이미지 3장을 제작합니다... (엔진: ${provider.toUpperCase()})`);
@@ -183,7 +212,7 @@ async function createLyricThemedImages(lyrics, theme, genre, mood) {
         const promptEngineer = require('./prompt_engineer');
         const scenes = await promptEngineer.generateVisualScenes(lyrics, theme);
 
-        const lyricsDir = path.join(__dirname, 'images', 'lyrics');
+        const lyricsDir = path.join(__dirname, 'images', 'lyrics', category);
         fs.ensureDirSync(lyricsDir);
 
         const imagePaths = [];

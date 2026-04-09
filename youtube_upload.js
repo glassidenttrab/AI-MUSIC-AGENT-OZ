@@ -4,7 +4,12 @@ const readline = require('readline');
 const path = require('path');
 
 // OAuth2 인증 설정
-const SCOPES = ['https://www.googleapis.com/auth/youtube.upload'];
+const SCOPES = [
+    'https://www.googleapis.com/auth/youtube.upload', 
+    'https://www.googleapis.com/auth/youtube.force-ssl',
+    'https://www.googleapis.com/auth/yt-analytics.readonly',
+    'https://www.googleapis.com/auth/youtube.readonly'
+];
 const TOKEN_PATH = path.join(__dirname, 'token.json');
 
 // 다운로드 받은 클라이언트 시크릿 파일명
@@ -182,8 +187,151 @@ async function uploadVideo(auth, videoFilePath, coverFilePath, title, descriptio
     }
 }
 
+/**
+ * 재생목록을 검색하고, 없으면 새로 생성하여 ID를 반환합니다.
+ */
+async function getOrCreatePlaylist(auth, title) {
+    const youtube = google.youtube({ version: 'v3', auth });
+
+    try {
+        // 1. 기존 재생목록 검색
+        let pageToken = null;
+        let playlistId = null;
+
+        do {
+            const res = await youtube.playlists.list({
+                part: 'snippet',
+                mine: true,
+                maxResults: 50,
+                pageToken: pageToken
+            });
+
+            const playlists = res.data.items || [];
+            const found = playlists.find(p => p.snippet.title === title);
+
+            if (found) {
+                playlistId = found.id;
+                break;
+            }
+            pageToken = res.data.nextPageToken;
+        } while (pageToken);
+
+        if (playlistId) {
+            console.log(`[재생목록] 기존 재생목록 '${title}'(ID: ${playlistId})을(를) 사용합니다.`);
+            return playlistId;
+        }
+
+        // 2. 새 재생목록 생성
+        console.log(`[재생목록] 재생목록 '${title}'이(가) 없어 새로 생성합니다...`);
+        const createRes = await youtube.playlists.insert({
+            part: 'snippet,status',
+            requestBody: {
+                snippet: {
+                    title: title,
+                    description: `AI가 생성한 ${title} 음악 모음입니다.`
+                },
+                status: {
+                    privacyStatus: 'public' // 생성된 재생목록은 기본 공개
+                }
+            }
+        });
+
+        console.log(`✅ [재생목록 생성 완료] ID: ${createRes.data.id}`);
+        return createRes.data.id;
+
+    } catch (e) {
+        console.error('❌ 재생목록 검색/생성 실패:', e.toString());
+        return null;
+    }
+}
+
+/**
+ * 특정 동영상을 재생목록에 추가합니다.
+ */
+async function addVideoToPlaylist(auth, videoId, playlistId) {
+    const youtube = google.youtube({ version: 'v3', auth });
+
+    try {
+        console.log(`[재생목록 추가] 영상(${videoId})을 재생목록(${playlistId})에 추가합니다...`);
+        await youtube.playlistItems.insert({
+            part: 'snippet',
+            requestBody: {
+                snippet: {
+                    playlistId: playlistId,
+                    resourceId: {
+                        kind: 'youtube#video',
+                        videoId: videoId
+                    }
+                }
+            }
+        });
+        console.log(`✅ [재생목록 추가 완료]`);
+        return true;
+    } catch (e) {
+        // 이미 재생목록에 있는 경우 오류 무시 (API 버전에 따라 메시지가 다를 수 있음)
+        if (e.message && e.message.includes('already in the playlist')) {
+            console.log(`⚠️ 영상이 이미 재생목록에 포함되어 있습니다.`);
+            return true;
+        }
+        console.error('❌ 재생목록 추가 실패:', e.message || e.toString());
+        return false;
+    }
+}
+
+/**
+ * 특정 동영상에 댓글을 작성합니다. (질문형 고정 댓글용)
+ */
+async function postComment(auth, videoId, text) {
+    const youtube = google.youtube({ version: 'v3', auth });
+
+    try {
+        console.log(`[댓글 작성] 영상(${videoId})에 댓글을 남깁니다: "${text}"`);
+        await youtube.commentThreads.insert({
+            part: 'snippet',
+            requestBody: {
+                snippet: {
+                    videoId: videoId,
+                    topLevelComment: {
+                        snippet: {
+                            textOriginal: text
+                        }
+                    }
+                }
+            }
+        });
+        console.log(`✅ [댓글 작성 완료]`);
+        return true;
+    } catch (e) {
+        console.error('❌ 댓글 작성 실패:', e.toString());
+        return false;
+    }
+}
+
+/**
+ * YouTube API 할당량이 남아있는지 확인합니다. (단순 채널 정보 조회로 테스트)
+ */
+async function checkQuota(auth) {
+    const youtube = google.youtube({ version: 'v3', auth });
+    try {
+        await youtube.channels.list({
+            part: 'id',
+            mine: true
+        });
+        return true;
+    } catch (e) {
+        if (e.message && e.message.includes('quotaExceeded')) {
+            return false;
+        }
+        throw e; // 다른 에러(인증 등)는 상위로 던짐
+    }
+}
+
 // 모듈로 내보내어 다른 파일에서 호출 가능하도록 설정
 module.exports = {
     authorize,
-    uploadVideo
+    uploadVideo,
+    getOrCreatePlaylist,
+    addVideoToPlaylist,
+    postComment,
+    checkQuota
 };

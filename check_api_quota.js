@@ -65,7 +65,22 @@ async function checkYouTube() {
 }
 
 async function run() {
-    await checkGemini();
+    const keys = (process.env.GEMINI_API_KEY || "").split(",").map(k => k.trim()).filter(k => k);
+    console.log(`--- [총 ${keys.length}개의 API 키 검증 시작] ---`);
+    
+    for (let i = 0; i < keys.length; i++) {
+        console.log(`\n🔑 Key #${i+1} 검증 중...`);
+        const apiKey = keys[i];
+        try {
+            const client = new GoogleGenAI({ apiKey: apiKey });
+            const model = client.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const result = await model.generateContent("Identify yourself briefly.");
+            console.log(`✅ Key #${i+1} 성공!`);
+        } catch (err) {
+            console.error(`❌ Key #${i+1} 실패: ${err.message}`);
+        }
+    }
+    
     await checkYouTube();
 }
 

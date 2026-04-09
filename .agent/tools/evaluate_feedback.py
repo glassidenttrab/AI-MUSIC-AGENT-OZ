@@ -117,8 +117,9 @@ def auto_evaluate_performance():
                 "IsBuggy": is_buggy
             }
 
-            # 현재는 유튜브 테스트 초기라 임계값을 100회로 낮춰봅니다.
-            if real_views >= 100 and not is_buggy:
+            # 사용자의 요청에 따라 성공 기준 대폭 상향 (100 -> 1000회)
+            MIN_SUCCESS_VIEWS = 1000 
+            if real_views >= MIN_SUCCESS_VIEWS and not is_buggy:
                 print(f"✅ [SUCCESS/API] {genre} ({real_views} views)")
                 if genre not in lessons["successful_genres"]:
                     lessons["successful_genres"].append(genre)
@@ -138,10 +139,18 @@ def auto_evaluate_performance():
         print(f"API 호출 중 에러 발생: {e}")
         return
 
-    lessons["recommendations"] = [
-        "Focus on metrics dynamically retrieved from YouTube Statistics API.",
-        "Ensure PromptEngineer logic strictly maps genres to storytelling scenarios."
-    ]
+    # 동적 추천 생성
+    if lessons["successful_genres"]:
+        lessons["recommendations"] = [
+            f"Increase weight for successful genres: {', '.join(lessons['successful_genres'])}",
+            "Maintain 70:30 exploitation/exploration ratio to scale proven hits.",
+            "Analyze audience retention for the first 3 seconds to optimize Shorts hooks."
+        ]
+    else:
+        lessons["recommendations"] = [
+            "Focus on diverse experimentation (Exploration mode) to find the first 'winning' genre.",
+            "Ensure PromptEngineer logic strictly maps genres to storytelling scenarios."
+        ]
 
     if updated_count > 0:
         with open(MEM_FILE, "w", encoding="utf-8") as f:

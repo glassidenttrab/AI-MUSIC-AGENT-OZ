@@ -1,0 +1,102 @@
+[
+    {
+        "video_id": "U4FZQ1RALXg",
+        "status": "evaluated",
+        "type": "longform",
+        "timestamp": "2026-03-29T11:00:00Z",
+        "metadata": {
+            "youtube_title": "[OZ] | Viral Brazilian Phonk Soundscape 🎧 | 1 Hour Immersive Loop",
+            "genre": "Brazilian Phonk Aura",
+            "isInstrumental": false
+        },
+        "views_at_evaluation": 7,
+        "likes_at_evaluation": 0
+    },
+    {
+        "video_id": "byZsaqWkpH0",
+        "status": "evaluated",
+        "type": "shorts",
+        "timestamp": "2026-03-29T11:00:00Z",
+        "metadata": {
+            "youtube_title": "[OZ] | Viral Brazilian Phonk Aura ⚡️ | Immersive Shorts",
+            "genre": "Brazilian Phonk Aura",
+            "isInstrumental": false
+        },
+        "views_at_evaluation": 0,
+        "likes_at_evaluation": 0
+    },
+    {
+        "video_id": "iiUOHaYmLYI",
+        "status": "evaluated",
+        "type": "longform",
+        "timestamp": "2026-03-29T07:02:05.307Z",
+        "metadata": {
+            "youtube_title": "[Instrumental] [OZ] | Hypnotic Afro House Soundscape 🎧 | 1 Hour Immersive Loop",
+            "genre": "Midnight Solstice Afro House",
+            "isInstrumental": true
+        },
+        "views_at_evaluation": 30,
+        "likes_at_evaluation": 1
+    },
+    {
+        "video_id": "pp_SAM2bBMg",
+        "status": "evaluated",
+        "type": "shorts",
+        "timestamp": "2026-03-29T07:02:08.589Z",
+        "metadata": {
+            "youtube_title": "[Instrumental] [OZ] | Hypnotic Afro House Soundscape 🎧 | #Shorts #OZ",
+            "genre": "Midnight Solstice Afro House",
+            "isInstrumental": true
+        },
+        "views_at_evaluation": 102,
+        "likes_at_evaluation": 0
+    },
+    {
+        "video_id": "15-CA5Ewr0w",
+        "status": "evaluated",
+        "type": "longform",
+        "timestamp": "2026-04-07T16:43:35.198Z",
+        "metadata": {
+            "youtube_title": "[Instrumental] [OZ] | Cafe Study - Cozy 1960s Slow Jazz Ballad | 1 Hour Immersive Loop",
+            "genre": "1960s Slow Jazz Ballad",
+            "isInstrumental": true
+        },
+        "views_at_evaluation": 0,
+        "likes_at_evaluation": 0
+    },
+    {
+        "video_id": "vsboL3TnQi4",
+        "status": "evaluated",
+        "type": "shorts",
+        "timestamp": "2026-04-07T16:43:38.476Z",
+        "metadata": {
+            "youtube_title": "[Instrumental] [OZ] | Cafe Study - Cozy 1960s Slow Jazz Ballad | #Shorts #OZ",
+            "genre": "1960s Slow Jazz Ballad",
+            "isInstrumental": true
+        },
+        "views_at_evaluation": 0,
+        "likes_at_evaluation": 0
+    },
+    {
+        "video_id": "ZwH6RnbFwsI",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-08T04:17:50.705Z",
+        "metadata": {
+            "youtube_title": "[OZ] Rainy Day Open-air Cafe | 1 Hour Jazz Compilation for Study & Relaxation",
+            "theme": "Rainy Day Cafe",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "-OPegXGEXNk",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-08T04:17:54.298Z",
+        "metadata": {
+            "youtube_title": "Cozy Rainy Day Cafe Vibes ☕️🌧️ #shorts #jazz #oz",
+            "theme": "Rainy Day Cafe",
+            "isInstrumental": true
+        }
+    }
+]
