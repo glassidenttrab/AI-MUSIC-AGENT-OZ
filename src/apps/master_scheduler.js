@@ -1,7 +1,7 @@
 const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs-extra');
-const notificationService = require('./notification_service');
+const notificationService = require('../core/notification_service');
 
 /**
  * ⚠️ ABSOLUTE ISOLATION NOTICE:
@@ -11,13 +11,12 @@ const notificationService = require('./notification_service');
  */
 
 // [설정] 자율 사이클 주기 (밀리초 단위, 예: 12시간 = 12 * 60 * 60 * 1000)
-// [설정] 자율 사이클 주기 (밀리초 단위, 예: 8시간 = 8 * 60 * 60 * 1000)
-const CYCLE_INTERVAL = 8 * 60 * 60 * 1000; 
+const CYCLE_INTERVAL = 12 * 60 * 60 * 1000; 
 const LOCK_FILE = path.join(__dirname, 'master.lock');
 
 console.log(`\n==================================================`);
 console.log(`🚀 [AI MUSIC AGENT OZ] Always-ON 상시 가동 모드 가동`);
-console.log(`⏱️ 실행 주기: 매 8시간마다 자율 사이클 수행 (일일 3회)`);
+console.log(`⏱️ 실행 주기: 매 12시간마다 자율 사이클 수행 (일일 2회)`);
 console.log(`==================================================\n`);
 
 async function runCycle(retryCount = 0) {

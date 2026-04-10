@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'OZ_MUSIC_MASTER_SCHEDULER',
-      script: 'master_scheduler.js',
+      script: 'src/apps/master_scheduler.js',
       // 인스턴스 개수 (단일 백그라운드 스케줄러이므로 1로 고정)
       instances: 1,
       // 프로세스가 죽을 경우 1초 만에 자동 재시작 (불사조 모드 핵심 기능)
@@ -18,7 +18,7 @@ module.exports = {
     },
     {
       name: 'OZ_HEALTH_CHECK',
-      script: 'health_check.js',
+      script: 'src/apps/health_check.js',
       // 4시간마다 한 번씩 실행 (크론 형식: 분 시 일 월 요일)
       cron_restart: '0 */4 * * *',
       // 즉시 실행 후 종료되므로 자동 재시작 방지 (크론에 의해서만 실행되도록)

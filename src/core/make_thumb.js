@@ -212,7 +212,7 @@ async function createLyricThemedImages(lyrics, theme, genre, mood, category = "G
         const promptEngineer = require('./prompt_engineer');
         const scenes = await promptEngineer.generateVisualScenes(lyrics, theme);
 
-        const lyricsDir = path.join(__dirname, 'images', 'lyrics', category);
+        const lyricsDir = path.join(__dirname, '../../images', 'lyrics', category);
         fs.ensureDirSync(lyricsDir);
 
         const imagePaths = [];

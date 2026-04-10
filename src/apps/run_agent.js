@@ -8,10 +8,10 @@
 
 const path = require('path');
 const fs = require('fs-extra');
-const { createSlideshowVideo } = require('./make_video');
-const { generateMusic } = require('./generate_music');
-const { authorize, uploadVideo } = require('./youtube_upload');
-const { createDynamicThumbnail, createSlideVariants, createLyricThemedImages } = require('./make_thumb');
+const { createSlideshowVideo } = require('../core/make_video');
+const { generateMusic } = require('../core/generate_music');
+const { authorize, uploadVideo } = require('../core/youtube_upload');
+const { createDynamicThumbnail, createSlideVariants, createLyricThemedImages } = require('../core/make_thumb');
 
 async function main() {
     console.log('====== [AI MUSIC AGENT OZ] 엔진 통합 모듈 가동 ======');
@@ -30,10 +30,10 @@ async function main() {
         const now = new Date();
         const dateString = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}`;
 
-        const musicDir = path.join(__dirname, 'music');
+        const musicDir = path.join(__dirname, '../../music');
 
         // 2. 비디오 합성 소스 정의 및 지능형 프롬프트 생성 (5단계 구조 적용)
-        const promptEngineer = require('./prompt_engineer');
+        const promptEngineer = require('../core/prompt_engineer');
         const promptData = promptEngineer.generateStructuredPrompt(runIndex);
         const { fullPrompt, lyrics, storytellingTitle, components } = promptData;
         const { genre, mood, instrument, vocal, theme } = components;
@@ -45,12 +45,12 @@ async function main() {
         
         const audioFileName = `${baseFileName}.mp3`;
         const audioFile = path.join(musicDir, audioFileName);
-        const videoDir = path.join(__dirname, 'videos');
+        const videoDir = path.join(__dirname, '../../videos');
         const videoOutput = path.join(videoDir, `${baseFileName}.mp4`);
 
         // 썸네일 소스와 결과 출력 파일명에 인덱스 부여 하여 덮어쓰기 방지
-        const originalThumbFile = path.join(__dirname, 'images', 'sample_thumb.png');
-        const generatedThumbFile = path.join(__dirname, 'images', `final_thumb_${runIndex}.png`);
+        const originalThumbFile = path.join(__dirname, '../../images', 'sample_thumb.png');
+        const generatedThumbFile = path.join(__dirname, '../../images', `final_thumb_${runIndex}.png`);
         
         fs.ensureDirSync(videoDir);
 
@@ -76,7 +76,7 @@ async function main() {
         // 3. 썸네일 및 슬라이드쇼 이미지 생성
         await createDynamicThumbnail(originalThumbFile, generatedThumbFile, genre, mood);
 
-        const slidesDir = path.join(__dirname, 'images', 'slides');
+        const slidesDir = path.join(__dirname, '../../images', 'slides');
         const genericSlides = await createSlideVariants(originalThumbFile, slidesDir, genre, mood);
         
         // [신규] 가사 및 테마 반영 이미지 3장 생성
@@ -141,7 +141,7 @@ ${lyrics}
         }
 
         // [신규] 생성 결과 리포트 작성 (reports 폴더)
-        const reportDir = path.join(__dirname, 'reports');
+        const reportDir = path.join(__dirname, '../../reports');
         const reportFile = path.join(reportDir, `${baseFileName}.md`);
         const reportContent = `# [AI MUSIC AGENT OZ] 생성 리포트\n\n` +
             `## 🎵 노래 정보\n` +
@@ -169,7 +169,7 @@ ${lyrics}
             console.log(`\n====== [AI MUSIC AGENT OZ] #${runIndex + 1} 사이클 성공 종료 ======`);
             
             // [자율 에이전트 메모리 연동] 업로드 이력 기록
-            const memoryDir = path.join(__dirname, '.agent', 'memory');
+            const memoryDir = path.join(__dirname, '../../.agent', 'memory');
             const memoryFile = path.join(memoryDir, 'upload_history.json');
             
             await fs.ensureDir(memoryDir);
@@ -204,7 +204,7 @@ ${lyrics}
             const { execSync } = require('child_process');
             try {
                 const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
-                const feedbackScript = path.join(__dirname, '.agent', 'tools', 'evaluate_feedback.py');
+                const feedbackScript = path.join(__dirname, '../../.agent', 'tools', 'evaluate_feedback.py');
                 const feedbackOutput = execSync(`${pythonCmd} "${feedbackScript}"`, { encoding: 'utf8' });
                 console.log(feedbackOutput);
             } catch (err) {

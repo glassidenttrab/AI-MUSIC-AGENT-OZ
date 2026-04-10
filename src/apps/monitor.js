@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
-const notificationService = require('./notification_service');
+const notificationService = require('../core/notification_service');
 
 /**
  * [AI MUSIC AGENT OZ] Monitoring Module
@@ -8,9 +8,9 @@ const notificationService = require('./notification_service');
  */
 class MonitoringAgent {
     constructor() {
-        this.musicDir = path.join(__dirname, 'music');
-        this.lastRunPath = path.join(__dirname, 'last_run.json');
-        this.logPath = path.join(__dirname, 'latest_agent.log');
+        this.musicDir = path.join(__dirname, '../../music');
+        this.lastRunPath = path.join(__dirname, '../../last_run.json');
+        this.logPath = path.join(__dirname, '../../latest_agent.log');
     }
 
     /**

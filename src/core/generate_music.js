@@ -13,7 +13,7 @@ require('dotenv').config();
  * @param {string} category - 저장 폴더 카테고리 (예: "Jazz", "Lofi")
  */
 async function generateMusic(promptText, filename, durationSeconds = 180, lyrics = null, category = "General") {
-    const musicDir = path.join(__dirname, 'music', category);
+    const musicDir = path.join(__dirname, '../../music', category);
     await fs.ensureDir(musicDir);
 
     const outputPath = path.join(musicDir, filename);

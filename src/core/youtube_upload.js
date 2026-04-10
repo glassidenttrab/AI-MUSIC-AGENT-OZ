@@ -10,7 +10,7 @@ const SCOPES = [
     'https://www.googleapis.com/auth/yt-analytics.readonly',
     'https://www.googleapis.com/auth/youtube.readonly'
 ];
-const TOKEN_PATH = path.join(__dirname, 'token.json');
+const TOKEN_PATH = path.join(__dirname, '../../configs', 'token.json');
 
 // 다운로드 받은 클라이언트 시크릿 파일명
 const CLIENT_SECRET_FILE = 'client_secret_83268081542-9qq9mlgep0f3bgo0h85ud5ddsljvun6v.apps.googleusercontent.com.json';
@@ -20,7 +20,7 @@ const CLIENT_SECRET_FILE = 'client_secret_83268081542-9qq9mlgep0f3bgo0h85ud5ddsl
  */
 async function authorize() {
     // 클라이언트 시크릿 파일 읽기
-    const content = await fs.readFile(path.join(__dirname, CLIENT_SECRET_FILE), 'utf8');
+    const content = await fs.readFile(path.join(__dirname, '../../configs', CLIENT_SECRET_FILE), 'utf8');
     const credentials = JSON.parse(content);
     
     // 구조 확인 (웹 어플리케이션인지 설치형인지에 따라 다름)

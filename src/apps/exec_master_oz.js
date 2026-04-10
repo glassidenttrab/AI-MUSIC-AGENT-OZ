@@ -1,7 +1,7 @@
 const https = require('https');
 require('dotenv').config();
 
-const { authorize, uploadVideo, checkQuota } = require('./youtube_upload');
+const { authorize, uploadVideo, checkQuota } = require('../core/youtube_upload');
 const { generateHybridContent } = require('./generate_1hour_loop');
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;

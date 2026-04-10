@@ -1,6 +1,6 @@
 const { execSync } = require('child_process');
-const notificationService = require('./notification_service');
-const { authorize, checkQuota } = require('./youtube_upload');
+const notificationService = require('../core/notification_service');
+const { authorize, checkQuota } = require('../core/youtube_upload');
 const fs = require('fs-extra');
 const path = require('path');
 
@@ -47,7 +47,7 @@ async function runHealthCheck() {
     }
 
     // 3. 디스크 공간 체크 (임시 파일 누수 확인)
-    const tempDir = path.join(__dirname, 'temp_output');
+    const tempDir = path.join(__dirname, '../../temp_output');
     if (fs.existsSync(tempDir)) {
         const files = fs.readdirSync(tempDir);
         if (files.length > 20) {

@@ -155,9 +155,51 @@ def auto_evaluate_performance():
     if updated_count > 0:
         with open(MEM_FILE, "w", encoding="utf-8") as f:
             json.dump(history, f, indent=4, ensure_ascii=False)
-        with open(LESSONS_FILE, "w", encoding="utf-8") as f:
-            json.dump(lessons, f, indent=4, ensure_ascii=False)
-        print(f"✨ API 연동 업데이트 완료. {updated_count}개 영상 평가/갱신 필터링 완료.")
+    
+    # [Step 0] 글로벌 트렌드 검색 기능 호출
+    external_trends = fetch_global_trends(youtube)
+    lessons["external_trends"] = external_trends
+
+    with open(LESSONS_FILE, "w", encoding="utf-8") as f:
+        json.dump(lessons, f, indent=4, ensure_ascii=False)
+    print(f"✨ 성과 평가 및 글로벌 트렌드({len(external_trends)}개 테마) 업데이트 완료.")
+
+def fetch_global_trends(youtube):
+    """
+    유튜브 Search API를 사용하여 현재 시장에서 인기 있는 음악 테마와 키워드를 수집함
+    """
+    if not youtube: return []
+    
+    queries = ["Relaxing BGM", "Healing Music", "Study Jazz", "Lofi Beats", "Deep Sleep ASMR"]
+    trends = []
+    
+    print(f"📡 [Market Intelligence] 글로벌 유튜브 트렌드 분석 시작...")
+    
+    try:
+        for q in queries:
+            request = youtube.search().list(
+                q=q,
+                part="snippet",
+                type="video",
+                order="viewCount",
+                maxResults=5
+            )
+            response = request.execute()
+            
+            for item in response.get("items", []):
+                snippet = item.get("snippet", {})
+                title = snippet.get("title", "")
+                trends.append({
+                    "query": q,
+                    "found_title": title,
+                    "extracted_keywords": [w for w in title.split() if len(w) > 3]
+                })
+        
+        # 키워드 빈도수 계산 등 추가 로직 가능
+        return trends
+    except Exception as e:
+        print(f"⚠️ 트렌드 검색 중 오류: {e}")
+        return []
 
 if __name__ == "__main__":
     auto_evaluate_performance()

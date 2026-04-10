@@ -1,7 +1,7 @@
-const { generateMusic } = require('./generate_music');
-const promptEngineer = require('./prompt_engineer');
-const { generateAIImage } = require('./make_thumb');
-const { createSlideshowVideo, createShortsVideo, concatAudioFiles, getAudioDuration } = require('./make_video');
+const { generateMusic } = require('../core/generate_music');
+const promptEngineer = require('../core/prompt_engineer');
+const { generateAIImage } = require('../core/make_thumb');
+const { createSlideshowVideo, createShortsVideo, concatAudioFiles, getAudioDuration } = require('../core/make_video');
 const path = require('path');
 const fs = require('fs-extra');
 
@@ -15,7 +15,7 @@ const fs = require('fs-extra');
 async function generateHybridContent(baseTheme, isInstrumental = false, targetMinutes = 70, songCount = 5) {
     const themeId = baseTheme.replace(/\s+/g, '_');
     const runId = `loop_${themeId}_${isInstrumental ? 'inst' : 'vocal'}`;
-    const outputDir = path.join(__dirname, 'loops', runId);
+    const outputDir = path.join(__dirname, '../../loops', runId);
     await fs.ensureDir(outputDir);
 
     console.log(`\n============== [OZ HYBRID COMPILATION RENDERER] ==============`);
@@ -47,7 +47,7 @@ async function generateHybridContent(baseTheme, isInstrumental = false, targetMi
         }
 
         const audioFilename = `track_${i}.mp3`;
-        const tempAudioPath = path.join(__dirname, 'music', baseTheme, audioFilename);
+        const tempAudioPath = path.join(__dirname, '../../music', baseTheme, audioFilename);
         const finalTrackPath = path.join(outputDir, audioFilename);
 
         if (fs.existsSync(finalTrackPath)) {
@@ -201,7 +201,7 @@ async function generateHybridContent(baseTheme, isInstrumental = false, targetMi
         vocalOrInst: isInstrumental ? 'instrumental' : 'vocal',
         loop: {
             path: loopVideoPath,
-            title: (storytellingTitle + " | 1 Hour Immersive Compilation").substring(0, 100),
+            title: promptEngineer.generateViralTitle(finalComponents),
             description: finalDescription,
             tags: initialSEOTags
         },

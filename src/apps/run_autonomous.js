@@ -1,9 +1,9 @@
-const { authorize, uploadVideo, getOrCreatePlaylist, addVideoToPlaylist, postComment, checkQuota } = require('./youtube_upload');
+const { authorize, uploadVideo, getOrCreatePlaylist, addVideoToPlaylist, postComment, checkQuota } = require('../core/youtube_upload');
 const { generateHybridContent } = require('./generate_1hour_loop');
-const promptEngineer = require('./prompt_engineer');
+const promptEngineer = require('../core/prompt_engineer');
 const fs = require('fs-extra');
 const path = require('path');
-const notificationService = require('./notification_service');
+const notificationService = require('../core/notification_service');
 
 /**
  * 🔒 PROJECT ISOLATION GATE:
@@ -15,7 +15,7 @@ const notificationService = require('./notification_service');
  * 전역 로깅 함수 (파일 및 콘솔 동시 출력)
  */
 async function logToFile(message) {
-    const logDir = path.join(__dirname, 'memory', 'logs');
+    const logDir = path.join(__dirname, '../../memory', 'logs');
     await fs.ensureDir(logDir);
     const dateStr = new Date().toISOString().split('T')[0];
     const logFile = path.join(logDir, `autonomous_${dateStr}.log`);
@@ -42,7 +42,7 @@ async function runAutonomousCycle() {
         try {
             const { execSync } = require('child_process');
             const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
-            const feedbackScript = path.join(__dirname, '.agent', 'tools', 'evaluate_feedback.py');
+            const feedbackScript = path.join(__dirname, '../../.agent', 'tools', 'evaluate_feedback.py');
             execSync(`${pythonCmd} "${feedbackScript}"`, { encoding: 'utf8' });
             promptEngineer.reload(); // 신규 분석 결과 로드
             await logToFile(`✅ [최적화] 이전 성과를 바탕으로 오늘의 테마 생성 전략이 갱신되었습니다.`);
@@ -57,11 +57,11 @@ async function runAutonomousCycle() {
             process.exit(0); // 중단이 아닌 예약 종료이므로 0 (또는 에러 없이 종료)
         }
 
-        // 2. 전략 수립 (보컬과 연주곡용 두 테마를 서로 다르게 선정)
-        const themeVocal = promptEngineer.selectOptimalTheme(0);
-        const themeInst = promptEngineer.selectOptimalTheme(1);
+        // 2. 전략 수립 (v4 엔진 비동기 분석 호출)
+        const themeVocal = await promptEngineer.selectOptimalTheme();
+        const themeInst = await promptEngineer.selectOptimalTheme(); // 필요시 재분석 또는 동일 테마 사용
         const targetMinutes = process.env.OZ_LOOP_MINUTES ? parseInt(process.env.OZ_LOOP_MINUTES) : 60;
-        await logToFile(`🎯 테마 다변화 선정 완료: [VOCAL: ${themeVocal}] / [INST: ${themeInst}]`);
+        await logToFile(`🎯 4세대 테마 선정 완료: [VOCAL: ${themeVocal}] / [INST: ${themeInst}]`);
 
         // 3. 자율 생산 및 배포 사이클 (Vocal & Instrumental)
         const modes = [
@@ -160,7 +160,7 @@ async function runAutonomousCycle() {
 }
 
 async function recordHistory(loopId, shortsId, content, scheduledTime) {
-    const memoryDir = path.join(__dirname, '.agent', 'memory');
+    const memoryDir = path.join(__dirname, '../../.agent', 'memory');
     const memoryFile = path.join(memoryDir, 'upload_history.json');
     await fs.ensureDir(memoryDir);
 
