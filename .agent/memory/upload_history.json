@@ -567,5 +567,224 @@
         "video_id": "sD2uz17OjPc",
         "type": "Shorts",
         "title": "[Instrumental] [OZ] | Cafe & Study | - Cozy 1960s Slow Jazz Ballad 🎧 | #Shorts #OZ #AI"
+    },
+    {
+        "timestamp": "2026-04-12T11:18:27.442Z",
+        "video_id": "NnhFJF6KBtc",
+        "type": "Longform",
+        "title": "Weekly Omnibus",
+        "status": "published",
+        "metadata": {
+            "theme": "Nature/ASMR Sanctuary",
+            "genre": "Ambient / Organic ASMR",
+            "isInst": true
+        }
+    },
+    {
+        "timestamp": "2026-04-12T11:18:36.161Z",
+        "video_id": "IBuH2dfbzWc",
+        "type": "Shorts",
+        "title": "The Genesis of Whispering Aether | #Shorts #OZ #AI",
+        "status": "published",
+        "metadata": {
+            "theme": "Nature/ASMR Sanctuary",
+            "genre": "Ambient / Organic ASMR",
+            "isInst": true
+        }
+    },
+    {
+        "timestamp": "2026-04-12T12:42:26.268Z",
+        "video_id": "VEauBijTirg",
+        "type": "Longform",
+        "title": "🎧 Sophisticated, Warm, Relaxing Jazz / Lounge mix | OZ CAFE | AI Music Agent OZ",
+        "status": "published",
+        "metadata": {
+            "theme": "OZ CAFE",
+            "genre": "Jazz / Lounge",
+            "isInst": true
+        }
+    },
+    {
+        "timestamp": "2026-04-13T02:11:51.777Z",
+        "video_id": "wxJ8OKyqPS4",
+        "type": "Longform",
+        "title": "🎧 Futuristic, Serene, Immersive Cyber-Lofi / Botanical Ambient mix | Biophilic Cyberpunk Sanctuary | AI Music Agent OZ",
+        "status": "published",
+        "metadata": {
+            "theme": "Biophilic Cyberpunk Sanctuary",
+            "genre": "Cyber-Lofi / Botanical Ambient",
+            "isInst": true
+        }
+    },
+    {
+        "timestamp": "2026-04-13T02:12:02.079Z",
+        "video_id": "bsF8KslrY7g",
+        "type": "Shorts",
+        "title": "Chlorophyll Circuits: The Neon Greenhouse Paradox | #Shorts #OZ #AI",
+        "status": "published",
+        "metadata": {
+            "theme": "Biophilic Cyberpunk Sanctuary",
+            "genre": "Cyber-Lofi / Botanical Ambient",
+            "isInst": true
+        }
+    },
+    {
+        "timestamp": "2026-04-15T03:26:33.562Z",
+        "video_id": "GNVOlGmB5j8",
+        "type": "Longform",
+        "title": "🎧 Sophisticated, Warm, Relaxing Jazz / Lounge mix | OZ CAFE | AI Music Agent OZ",
+        "status": "published",
+        "metadata": {
+            "theme": "OZ CAFE",
+            "genre": "Jazz / Lounge",
+            "isInst": true,
+            "recovery": "manual_fix_upload",
+            "optimization": "low_size_170MB"
+        }
+    },
+    {
+        "timestamp": "2026-04-15T03:26:44.261Z",
+        "video_id": "XJGR1EkUD7I",
+        "type": "Shorts",
+        "title": "OZ CAFE 감성 재충전 | #Shorts #OZ #AI #Jazz",
+        "status": "published",
+        "metadata": {
+            "theme": "OZ CAFE",
+            "genre": "Jazz / Lounge",
+            "isInst": true,
+            "recovery": "manual_fix_shorts"
+        }
+    },
+    {
+        "timestamp": "2026-04-20T18:41:36.117Z",
+        "video_id": "P3YmjEcloVw",
+        "type": "Longform",
+        "title": "🎧 Healing, Ethereal, Pure Ambient / Natural ASMR mix | Nature Sanctuary | AI Music Agent OZ",
+        "status": "published",
+        "metadata": {
+            "theme": "Nature Sanctuary",
+            "genre": "Ambient / Natural ASMR",
+            "isInst": true
+        }
+    },
+    {
+        "timestamp": "2026-04-22T08:09:03.155Z",
+        "video_id": "gv0vFQxDwYA",
+        "type": "Longform",
+        "title": "🎧 Focus, Millennial, Calm Lofi Hip Hop / Chillhop mix | Lofi Study Room | AI Music Agent OZ",
+        "status": "published",
+        "metadata": {
+            "theme": "Lofi Study Room",
+            "genre": "Lofi Hip Hop / Chillhop",
+            "isInst": true
+        }
+    },
+    {
+        "timestamp": "2026-04-22T08:09:11.628Z",
+        "video_id": "0uFzA5rw_KI",
+        "type": "Shorts",
+        "title": "Paperback Solitude | #Shorts #OZ #AI",
+        "status": "published",
+        "metadata": {
+            "theme": "Lofi Study Room",
+            "genre": "Lofi Hip Hop / Chillhop",
+            "isInst": true
+        }
+    },
+    {
+        "timestamp": "2026-04-23T09:10:09.850Z",
+        "video_id": "3sA2vc0NNJQ",
+        "type": "Longform",
+        "title": "🎧 Focus, Millennial, Calm Lofi Hip Hop / Chillhop mix | Lofi Study Room | AI Music Agent OZ",
+        "status": "published",
+        "metadata": {
+            "theme": "Lofi Study Room",
+            "genre": "Lofi Hip Hop / Chillhop",
+            "isInst": false
+        }
+    },
+    {
+        "timestamp": "2026-04-23T09:10:18.653Z",
+        "video_id": "UOUT0QYZ3OU",
+        "type": "Shorts",
+        "title": "Carbon Paper Whispers | #Shorts #OZ #AI",
+        "status": "published",
+        "metadata": {
+            "theme": "Lofi Study Room",
+            "genre": "Lofi Hip Hop / Chillhop",
+            "isInst": false
+        }
+    },
+    {
+        "timestamp": "2026-04-29T02:42:17.756Z",
+        "video_id": "vIwRy2upXfo",
+        "type": "Longform",
+        "title": "[OZ] 🎧 POV: You're drinking black coffee in a quiet, rain-drenched jazz cafe at 4 AM | OZ CAFE | AI Music Agent OZ",
+        "status": "published",
+        "metadata": {
+            "theme": "OZ CAFE",
+            "genre": "Jazz / Lounge",
+            "isInst": false
+        }
+    },
+    {
+        "timestamp": "2026-04-29T02:42:27.016Z",
+        "video_id": "_mN1j12TDZw",
+        "type": "Shorts",
+        "title": "🎧 POV: You're drinking black coffee in a quiet, rain-drenched jazz cafe at 4 AM | #Shorts #OZ #AI",
+        "status": "published",
+        "metadata": {
+            "theme": "OZ CAFE",
+            "genre": "Jazz / Lounge",
+            "isInst": false
+        }
+    },
+    {
+        "timestamp": "2026-04-29T10:14:25.907Z",
+        "video_id": "Jg_EZstBDWg",
+        "type": "Longform",
+        "title": "[OZ] 🎧 POV: It's 4 AM and you're finally finishing that project [Deep Lofi / Study] | Lofi Study Room | AI Music Agent OZ",
+        "status": "published",
+        "metadata": {
+            "theme": "Lofi Study Room",
+            "genre": "Lofi Hip Hop / Chillhop",
+            "isInst": true
+        }
+    },
+    {
+        "timestamp": "2026-04-29T10:14:36.298Z",
+        "video_id": "eLNsW3d4EEY",
+        "type": "Shorts",
+        "title": "🎧 POV: It's 4 AM and you're finally finishing that project [Deep Lofi / Study] | #Shorts #OZ #AI",
+        "status": "published",
+        "metadata": {
+            "theme": "Lofi Study Room",
+            "genre": "Lofi Hip Hop / Chillhop",
+            "isInst": true
+        }
+    },
+    {
+        "timestamp": "2026-04-30T08:42:52.578Z",
+        "video_id": "Iz4Vyk9XfBs",
+        "type": "Longform",
+        "title": "[OZ] 🎧 POV: It’s 3 AM and you’re the only person awake in the world [Lofi / Study] | Lofi Study Room | AI Music Agent OZ",
+        "status": "published",
+        "metadata": {
+            "theme": "Lofi Study Room",
+            "genre": "Lofi Hip Hop / Chillhop",
+            "isInst": false
+        }
+    },
+    {
+        "timestamp": "2026-04-30T08:43:00.998Z",
+        "video_id": "vcatNIENYqs",
+        "type": "Shorts",
+        "title": "🎧 POV: It’s 3 AM and you’re the only person awake in the world [Lofi / Study] | #Shorts #OZ #AI",
+        "status": "published",
+        "metadata": {
+            "theme": "Lofi Study Room",
+            "genre": "Lofi Hip Hop / Chillhop",
+            "isInst": false
+        }
     }
 ]

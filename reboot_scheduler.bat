@@ -11,7 +11,7 @@ if exist master.lock del master.lock
 if exist scheduler.lock del scheduler.lock
 
 :: 만약 찌꺼기 프로세스가 존재하면 끄고 재등록 (에러 무시)
-call pm2 delete OZ_MASTER_SCHEDULER 2>nul
+call pm2 delete OZ_MUSIC_MASTER_SCHEDULER 2>nul
 call pm2 start ecosystem.config.js
 call pm2 save
 

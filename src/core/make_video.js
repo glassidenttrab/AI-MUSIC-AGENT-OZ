@@ -21,15 +21,23 @@ function createVideo(audioPath, imagePath, outputPath) {
             '-y',
             '-loop', '1', '-i', imagePath,
             '-i', audioPath,
-            '-vf', 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2,format=yuv420p',
-            '-c:v', 'libx264', '-tune', 'stillimage',
+            '-filter_complex', 
+            '[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2,format=yuv420p[vbg];' +
+            '[1:a]aformat=channel_layouts=mono,showwaves=s=1600x120:mode=p2p:colors=white@0.4|white@0.8:scale=sqrt:n=20[wave];' +
+            '[vbg][wave]overlay=x=(W-w)/2:y=H-180:eval=init[outv]',
+            '-map', '[outv]',
+            '-map', '1:a',
+            '-c:v', 'libx265', '-crf', '32', '-preset', 'medium',
+            '-pix_fmt', 'yuv420p',
+            '-c:a', 'aac', '-b:a', '192k', // 오디오 인코딩 안정성 확보
             '-shortest',
+            '-movflags', '+faststart',
             outputPath
         ];
 
         console.log(`  [FFmpeg CMD] ${ffmpegPath} ${args.join(' ')}`);
 
-        execFile(ffmpegPath, args, (error, stdout, stderr) => {
+        execFile(ffmpegPath, args, { windowsHide: true }, (error, stdout, stderr) => {
             if (error) {
                 console.error(`❌ 비디오 합성 중 오류 발생:`, error.message);
                 console.error(`[FFmpeg STDERR]`, stderr);
@@ -48,7 +56,7 @@ function createVideo(audioPath, imagePath, outputPath) {
 function getAudioDuration(audioPath) {
     return new Promise((resolve) => {
         const args = ['-i', audioPath];
-        execFile(ffmpegPath, args, (error, stdout, stderr) => {
+        execFile(ffmpegPath, args, { windowsHide: true }, (error, stdout, stderr) => {
             const output = stderr || stdout;
             // 로케일 차이에도 대응할 수 있도록 'Duration: ' 문자열 검색 강화
             const match = output.match(/Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})/i);
@@ -86,8 +94,12 @@ function getAudioDuration(audioPath) {
 async function createSlideshowVideo(slideImages, audioPath, outputPath, slideDuration = 10, tracklistData = []) {
     if (!fs.existsSync(audioPath)) throw new Error(`오디오 파일을 찾을 수 없습니다: ${audioPath}`);
 
-    // 오디오 길이를 동적으로 파악
-    const audioSeconds = await getAudioDuration(audioPath);
+    // 오디오 길이를 정확히 파악 (tracklistData가 있으면 그 안의 정확한 메타데이터 합산 시간 우선 사용)
+    let audioSeconds = await getAudioDuration(audioPath);
+    if (tracklistData && tracklistData.length > 0) {
+        const lastTrack = tracklistData[tracklistData.length - 1];
+        audioSeconds = lastTrack.startTime + lastTrack.duration;
+    }
     console.log(`\n[슬라이드쇼 엔진 가동] 다중 이미지 순환 비디오 제작 중...`);
     console.log(`  🎵 오디오 길이 감지: ${audioSeconds.toFixed(2)}초`);
     console.log(`  📸 슬라이드: ${slideImages.length}장 / ⏱️ 각 ${slideDuration}초 표시`);
@@ -131,12 +143,12 @@ async function createSlideshowVideo(slideImages, audioPath, outputPath, slideDur
     const waveHeight = 80;
 
     const waveFilter = 
-        // 1. 고해상도에서 직접 미세 바 생성 (mode=cline, n=샘플 밀도)
-        `[1:a]aformat=channel_layouts=mono,showwaves=s=${waveWidth}x${waveHeight}:mode=cline:colors=white@0.8:scale=sqrt:n=25[wave_raw];` +
-        // 2. 약간의 부드러움을 위해 미세 블러 추가
-        `[wave_raw]gblur=sigma=0.5[wave_smooth];` +
-        // 3. 배경에 합성 (중앙 하단, 바닥에서 120px 띄움)
-        `[bg][wave_smooth]overlay=x=(W-w)/2:y=H-120`;
+        // 1. 프리미엄 P2P 스타일 (점과 점을 연결하는 정밀한 파형)
+        `[1:a]aformat=channel_layouts=mono,showwaves=s=${waveWidth}x${waveHeight}:mode=p2p:colors=white@0.6|cyan@0.3:scale=sqrt:n=15[wave_raw];` +
+        // 2. 가우시안 블러로 몽환적인 빛 번짐 효과(Bloom) 추가
+        `[wave_raw]split[w1][w2];[w2]gblur=sigma=1.5[w_glow];[w1][w_glow]blend=all_mode='addition'[wave_combined];` +
+        // 3. 배경에 합성 (조금 더 위로 배치하여 가독성 확보)
+        `[bg][wave_combined]overlay=x=(W-w)/2:y=H-160`;
 
 
 
@@ -162,9 +174,10 @@ async function createSlideshowVideo(slideImages, audioPath, outputPath, slideDur
         '-filter_complex_script', filterScriptPath, // 스크립트 파일 방식 사용
         '-map', '[out]',
         '-map', '1:a',
-        '-r', '15',
-        '-c:v', 'libx264',
-        '-crf', '30',
+        '-r', '10',
+        '-c:v', 'libx265',
+        '-crf', '35',
+        '-preset', 'medium',
         '-pix_fmt', 'yuv420p',
         '-c:a', 'aac',
         '-b:a', '128k',
@@ -173,24 +186,36 @@ async function createSlideshowVideo(slideImages, audioPath, outputPath, slideDur
         outputPath
     ];
 
-    console.log('  🎬 FFmpeg 슬라이드쇼 렌더링 시작 (Batch File 모드)...');
-
-    // [최적화] 모든 이스케이프 문제를 피하기 위해 배치 파일을 생성하여 실행
-    const batPath = path.join(path.dirname(outputPath), `_render_${Date.now()}.bat`);
-    const cmdForBat = `"${ffmpegPath}" ${args.map(arg => `"${arg.replace(/"/g, '""')}"`).join(' ')}`;
-    fs.writeFileSync(batPath, `@echo off\n${cmdForBat}\nif %errorlevel% neq 0 exit /b %errorlevel%`, 'utf8');
+    console.log('  🎬 FFmpeg 슬라이드쇼 렌더링 시작 (Direct Spawn)...');
 
     return new Promise((resolve, reject) => {
-        const { exec } = require('child_process');
-        exec(`"${batPath}"`, { maxBuffer: 1024 * 1024 * 500 }, (error, stdout, stderr) => {
+        const { spawn } = require('child_process');
+        
+        // [FIX 2026-04-20] 배치 파일 없이 직접 실행 (CMD 창 팝업 방지 및 안정성 확보)
+        const ffmpegProcess = spawn(ffmpegPath, args, {
+            windowsHide: true, // 창 숨기기 강제
+            stdio: ['ignore', 'pipe', 'pipe']
+        });
+
+        let stderr = '';
+        ffmpegProcess.stderr.on('data', (data) => {
+            stderr += data.toString();
+            // 진행 상황만 간단히 표시 (메모리 및 로그 낭비 방지)
+            if (stderr.includes('frame=')) {
+                const match = stderr.match(/frame=\s*\d+/);
+                if (match) process.stdout.write(`\r    ⏳ Rendering: ${match[0]}...   `);
+            }
+        });
+
+        ffmpegProcess.on('close', (code) => {
+            console.log('\n');
             try { fs.removeSync(concatFilePath); } catch (e) { }
             try { fs.removeSync(filterScriptPath); } catch (e) { }
-            try { fs.removeSync(batPath); } catch (e) { }
 
-            if (error) {
-                console.error(`❌ 비디오 합성 실패 (Code: ${error.code})`);
-                if (stderr) console.error(`[FFmpeg Error Log]\n${stderr.slice(-1000)}`);
-                return reject(error);
+            if (code !== 0) {
+                console.error(`❌ 비디오 합성 실패 (Exit Code: ${code})`);
+                console.error(`[FFmpeg Last Log]\n${stderr.slice(-500)}`);
+                return reject(new Error(`FFmpeg failed with code ${code}`));
             }
 
             if (fs.existsSync(outputPath)) {
@@ -200,6 +225,11 @@ async function createSlideshowVideo(slideImages, audioPath, outputPath, slideDur
             } else {
                 reject(new Error(`파일이 생성되지 않았습니다.`));
             }
+        });
+
+        ffmpegProcess.on('error', (err) => {
+            console.error(`❌ [Spawn Error]: ${err.message}`);
+            reject(err);
         });
     });
 }
@@ -235,22 +265,39 @@ function createShortsVideo(audioPath, imagePath, outputPath, maxDuration = 60, h
             '-loop', '1', '-i', imagePath,
             '-i', audioPath,
             '-vf', videoFilter,
-            '-c:v', 'libx264', '-tune', 'stillimage',
+            '-c:v', 'libx265', '-crf', '30', '-preset', 'medium',
+            '-pix_fmt', 'yuv420p',
             '-shortest',
             '-t', maxDuration.toString(),
+            '-movflags', '+faststart',
             outputPath
         ];
 
         console.log(`  [FFmpeg Shorts CMD] ${ffmpegPath} ${args.join(' ')}`);
 
-        execFile(ffmpegPath, args, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`❌ 쇼츠 합성 중 오류 발생:`, error.message);
-                console.error(`[FFmpeg STDERR]`, stderr);
-                return reject(error);
+        const { spawn } = require('child_process');
+        const ffmpegProcess = spawn(ffmpegPath, args, {
+            windowsHide: true,
+            stdio: ['ignore', 'pipe', 'pipe']
+        });
+
+        let stderr = '';
+        ffmpegProcess.stderr.on('data', (data) => { stderr += data.toString(); });
+
+        ffmpegProcess.on('close', (code) => {
+            if (code === 0 && fs.existsSync(outputPath)) {
+                console.log(`✅ [Shorts] 렌더링 완료! -> ${outputPath}`);
+                resolve(outputPath);
+            } else {
+                console.error(`❌ [Shorts] 렌더링 실패 (Code: ${code})`);
+                console.error(stderr.slice(-500));
+                reject(new Error(`Shorts creation failed with code ${code}`));
             }
-            console.log(`✅ 쇼츠 비디오 완성이 완료되었습니다: ${outputPath}`);
-            resolve(outputPath);
+        });
+
+        ffmpegProcess.on('error', (err) => {
+            console.error(`❌ [Shorts Spawn Error]: ${err.message}`);
+            reject(err);
         });
     });
 }
@@ -275,11 +322,11 @@ function concatAudioFiles(audioPaths, outputPath) {
             '-f', 'concat',
             '-safe', '0',
             '-i', listFile,
-            '-c', 'copy', // 재인코딩 없이 빠르게 병합
+            '-c:a', 'libmp3lame', '-b:a', '192k', // 재인코딩으로 VBR/ID3 태그 타임스탬프 오류를 완벽히 픽스합니다
             outputPath
         ];
 
-        execFile(ffmpegPath, args, (error, stdout, stderr) => {
+        execFile(ffmpegPath, args, { windowsHide: true }, (error, stdout, stderr) => {
             fs.removeSync(listFile);
             if (error) {
                 console.error(`❌ 오디오 합병 중 오류 발생:`, error.message);
@@ -314,14 +361,16 @@ function createLoopVideo(audioPath, imagePath, outputPath, targetDuration = 3600
             '-stream_loop', '-1', '-i', audioPath,
             '-t', targetDuration.toString(),
             '-vf', 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2,format=yuv420p',
-            '-c:v', 'libx264', '-preset', 'veryfast', '-tune', 'stillimage',
-            '-c:a', 'aac', '-b:a', '192k',
+            '-r', '10',
+            '-c:v', 'libx265', '-crf', '35', '-preset', 'medium',
+            '-c:a', 'aac', '-b:a', '128k',
+            '-movflags', '+faststart',
             outputPath
         ];
 
         console.log(`  [FFmpeg Loop CMD] ${ffmpegPath} ${args.join(' ')}`);
 
-        execFile(ffmpegPath, args, { maxBuffer: 1024 * 1024 * 100 }, (error, stdout, stderr) => {
+        execFile(ffmpegPath, args, { maxBuffer: 1024 * 1024 * 100, windowsHide: true }, (error, stdout, stderr) => {
             if (error) {
                 console.error(`❌ 루프 비디오 합성 중 오류 발생:`, error.message);
                 console.error(`[FFmpeg STDERR]`, stderr);

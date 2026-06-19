@@ -1,107 +1,151 @@
 const fs = require('fs-extra');
 const path = require('path');
-const { spawn } = require('child_process');
+const { spawnSync, execFileSync } = require('child_process');
 require('dotenv').config();
 
+const ffmpegPath = require('ffmpeg-static');
+
 /**
- * [업그레이드] 고도화된 Python 기반 Lyria 3 엔진을 호출하는 래퍼 함수입니다.
+ * 오디오 파일의 길이를 초 단위로 반환하는 헬퍼 함수
+ */
+async function getAudioDuration(audioPath) {
+    try {
+        const ffprobePath = ffmpegPath.replace('ffmpeg.exe', 'ffprobe.exe');
+        if (!fs.existsSync(ffprobePath)) {
+            const stat = fs.statSync(audioPath);
+            return stat.size / 16384;
+        }
+
+        const args = [
+            '-v', 'error',
+            '-show_entries', 'format=duration',
+            '-of', 'default=noprint_wrappers=1:nokey=1',
+            audioPath
+        ];
+        const result = spawnSync(ffprobePath, args, { encoding: 'utf-8', windowsHide: true });
+        
+        const duration = parseFloat(result.stdout.trim());
+        if (isNaN(duration)) {
+            const stat = fs.statSync(audioPath);
+            return stat.size / 16384;
+        }
+        return duration;
+    } catch (e) {
+        return 0;
+    }
+}
+
+/**
+ * [V4.5 고도화] 고도화된 Python 기반 Lyria 3 엔진을 호출하는 래퍼 함수입니다.
  * 
  * @param {string} promptText - 음악 생성에 사용할 키워드 또는 프롬프트
  * @param {string} filename - 저장될 파일 이름 (예: "result_music.mp3")
- * @param {number} durationSeconds - (참고용) 현재 Pro(3분)/Clip(30초) 모델로 구분
+ * @param {number} durationSeconds - 생성 목표 길이
  * @param {string} lyrics - 가사 (선택 사항)
  * @param {string} category - 저장 폴더 카테고리 (예: "Jazz", "Lofi")
  */
-async function generateMusic(promptText, filename, durationSeconds = 180, lyrics = null, category = "General") {
+const { generateSunoMusic } = require('./generate_suno_music');
+
+async function generateLyriaMusicInternal(promptText, filename, durationSeconds = 180, lyrics = null, category = "General") {
     const musicDir = path.join(__dirname, '../../music', category);
     await fs.ensureDir(musicDir);
 
     const outputPath = path.join(musicDir, filename);
     const pythonScript = path.join(__dirname, 'generate_lyria_music.py');
-    const isClip = durationSeconds < 40;
+    const pythonPath = 'C:/Users/Ozpix/AppData/Local/Programs/Python/Python313/python.exe';
 
-    // [핵심] 다중 API 키 로테이션 및 재시도 로직
-    const apiKeys = (process.env.GEMINI_API_KEY || "").split(',').map(k => k.trim()).filter(k => k);
-    let keyIndex = 0;
+    const MAX_ATTEMPTS = 1; // [안정화] 무한 과금 방지를 위해 단일 시도만 허용 (재시도는 상위 루프 위임)
     let attempts = 0;
-    const MAX_ATTEMPTS = 20; // 다중 키 환경을 고려하여 시도 횟수를 대폭 상향
 
-    console.log(`\n[AI Composer] Lyria 3 엔진 가동 준비... (가용 키: ${apiKeys.length}개)`);
-    
+    console.log(`\n🎼 [Lyria 3 Pro] 고품질 롱폼 생성 모드 가동 (${category})`);
+    console.log(`   🔸 목표 길이: ${durationSeconds}초`);
+
     while (attempts < MAX_ATTEMPTS) {
         attempts++;
-        const currentKey = apiKeys[keyIndex % apiKeys.length];
+        console.log(`   🧠 [시도 ${attempts}/${MAX_ATTEMPTS}] 리리아 엔진 호출 중...`);
+
+        // [안정화] 각 시도 전에 기존 파일이 있다면 삭제 (오염 방지)
+        if (fs.existsSync(outputPath)) {
+            await fs.remove(outputPath);
+        }
         
-        console.log(`🧠 [시도 ${attempts}/${MAX_ATTEMPTS}] Key #${(keyIndex % apiKeys.length) + 1} 사용 중...`);
-        if (lyrics) console.log(`🎤 가사 포함 생성 모드 활성`);
+        console.log(`[DEBUG] PROMPT LENGTH: ${promptText ? promptText.length : 0}, PROMPT: ${promptText ? promptText.substring(0, 100) : "EMPTY"}`);
 
-        const pythonPath = `C:/Users/Ozpix/AppData/Local/Programs/Python/Python313/python.exe`;
-        const { spawnSync } = require('child_process');
-
-        const args = [pythonScript, "--prompt", promptText, "--output", outputPath];
-        if (lyrics) args.push("--lyrics", lyrics);
-        if (isClip) args.push("--clip");
+        // 프롬프트가 너무 길거나 특수문자 이스케이프 문제를 피하기 위해 임시 파일로 전달
+        const tempPromptPath = path.join(musicDir, `${filename}.prompt.txt`);
+        await fs.writeFile(tempPromptPath, promptText, 'utf-8');
 
         try {
-            const result = spawnSync(pythonPath, args, { 
+            const result = spawnSync(pythonPath, [pythonScript, "--prompt_file", tempPromptPath, "--output", outputPath], { 
                 encoding: 'utf-8', 
                 windowsHide: true,
-                env: { ...process.env, GEMINI_API_KEY: currentKey, PYTHONIOENCODING: 'utf-8' }
+                env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
             });
 
-            const output = (result.stdout || "") + (result.stderr || "");
+            // 프롬프트 임시 파일 정리
+            if (fs.existsSync(tempPromptPath)) {
+                await fs.remove(tempPromptPath);
+            }
+
+
+            const combinedOutput = (result.stdout || "") + (result.stderr || "");
             
-            // 1. 할당량 초과(429) 감지 및 로테이션/백오프
-            if (output.includes("Resource has been exhausted") || output.includes("429")) {
-                console.warn(`\n⚠️ [할당량 초과] 429 에러 감지 (Key #${(keyIndex % apiKeys.length) + 1}).`);
-                
-                if (apiKeys.length > 1) {
-                    keyIndex++;
-                    const nextKeyLabel = (keyIndex % apiKeys.length) + 1;
-                    
-                    // [핵심 개선] 전체 키를 한 바퀴 다 돌 때까지는 5초만 대기하며 다음 키 시도
-                    const isFullRotation = attempts % apiKeys.length === 0;
-                    const waitSec = isFullRotation ? 180 : 30; // 5초에서 30초로 상향 (IP 차단 회피용)
-                    
-                    console.log(`🔄 ${waitSec}초 대기 후 다음 API 키로 로테이션합니다... (Next: Key #${nextKeyLabel})`);
-                    
-                    // 모든 가용 키를 3바퀴 돌았는데도 계속 429라면 전멸 판정
-                    if (attempts >= apiKeys.length * 3) {
-                        console.error(`\n🚨 [경고] 가용한 모든 API 키(3회 순회)가 소진되었습니다.`);
-                        throw new Error("QUOTA_EXHAUSTED_ALL_KEYS");
-                    }
-                    await new Promise(r => setTimeout(r, waitSec * 1000));
-                } else {
-                    console.log(`⏱️ 단일 키 운영 중. 150초 대기 후 재시도합니다...`);
-                    await new Promise(r => setTimeout(r, 150000));
-                }
+            // 1. 할당량 초과(429) 감지 및 백오프 처리
+            if (combinedOutput.includes("429") || combinedOutput.includes("Quota Exceeded")) {
+                console.warn(`\n⚠️ [할당량 초과] 3분(180초) 대기 후 재시도합니다.`);
+                await new Promise(r => setTimeout(r, 180000));
                 continue; 
             }
 
-            // 2. 안전 필터 작동 감지
-            if (output.includes("Safety triggered") || output.includes("차단됨")) {
-                console.error(`\n❌ [차단] 프롬프트 안전 필터가 작동했습니다.`);
-                throw new Error("Safety Filter Triggered");
-            }
-
-            // 3. 실행 결과 확인
+            // 2. 실행 결과 확인
             if (result.status === 0 && fs.existsSync(outputPath)) {
-                const stats = fs.statSync(outputPath);
-                console.log(`\n✅ [성공] 음악 작곡 완료: ${filename} (크기: ${Math.round(stats.size/1024)} KB)`);
+                const actualDuration = await getAudioDuration(outputPath);
+                
+                // 만약 생성된 음원이 목표 길이보다 너무 짧고(예: 60초 미만), 롱폼 모드인 경우 
+                if (durationSeconds >= 120 && actualDuration < 100 && attempts < MAX_ATTEMPTS) {
+                    console.log(`   ⚠️ 생성된 음원이 너무 짧습니다 (${Math.round(actualDuration)}초). 재시도합니다...`);
+                    await fs.remove(outputPath); // 짧은 파일 삭제 후 재시도
+                    continue;
+                }
+
+                console.log(`\n✅ [성공] 음악 작곡 완료: ${filename} (길이: ${Math.round(actualDuration)}초)`);
                 return outputPath;
             } else {
-                console.error(`\n❌ [실패] 엔진 종료 (Code: ${result.status})`);
-                if (attempts === MAX_ATTEMPTS) throw new Error(`Python execution failed with code ${result.status}`);
+                console.error(`\n❌ [실패] 엔진 오류 (Code: ${result.status})`);
+                console.error(`[PYTHON OUTPUT]\n${combinedOutput}\n`);
+                // 실패했는데도 파일이 남아있다면 삭제 (비정상 파일 방지)
+                if (fs.existsSync(outputPath)) await fs.remove(outputPath);
+
+                if (attempts === MAX_ATTEMPTS) throw new Error(`Lyria Engine failed with code ${result.status}`);
             }
 
         } catch (err) {
-            console.error(`⚠️ 회차 오류:`, err.message);
-            if (attempts === MAX_ATTEMPTS) throw err;
-            await new Promise(r => setTimeout(r, 5000)); // 일반 오류 시 5초 대기 후 재시도
+            console.error(`⚠️ 작업 오류:`, err.message);
+            // 예외 발생 시에도 불완전한 파일이 생성되었다면 삭제
+            if (fs.existsSync(outputPath)) await fs.remove(outputPath);
+
+            if (attempts < MAX_ATTEMPTS) {
+                await new Promise(r => setTimeout(r, 10000));
+                continue;
+            }
         }
     }
-    throw new Error("최대 재시도 횟수를 초과했습니다.");
+
+    throw new Error(`[Lyria 3 Pro] 모든 시도가 실패했습니다.`);
+}
+
+/**
+ * 메인 음악 생성 라우터
+ * .env의 MUSIC_ENGINE 값에 따라 Lyria 3 또는 Suno 엔진을 호출합니다.
+ */
+async function generateMusic(promptText, filename, durationSeconds = 180, lyrics = null, category = "General") {
+    const engine = (process.env.MUSIC_ENGINE || 'lyria').toLowerCase();
+    
+    if (engine === 'suno') {
+        return await generateSunoMusic(promptText, filename, durationSeconds, lyrics, category);
+    } else {
+        return await generateLyriaMusicInternal(promptText, filename, durationSeconds, lyrics, category);
+    }
 }
 
 module.exports = { generateMusic };
-

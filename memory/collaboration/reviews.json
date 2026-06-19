@@ -1,0 +1,32 @@
+[
+    {
+        "id": "REV_1775836540884",
+        "timestamp": "2026-04-10T15:55:40.884Z",
+        "source": "PromptEngineer",
+        "type": "PROMPT",
+        "targetData": {
+            "fullPrompt": "CORE STYLE: K-Indie / Emotional R&B mix for YouTube music channel.\nVIBE & ATMOSPHERE: A small window-side table in a Seoul cafe, watching the gray rainy street. Ensure the mood is Melancholic, Cozy, Sentimental. (Variant #1)\nTECHNICAL SPECS: Target BPM is 65-85. Set in Minor, Melancholic R&B.\nINSTRUMENTATION: Main focus on Acoustic Piano, Soft Electric Guitar, Emotional Vocals, Rain texture.\nPRODUCTION QUALITY: Ultra-high fidelity, optimized for background listening.\nSTRUCTURE: High quality loop content.",
+            "lyrics": "(Verse 2)\nCoffee steam dancing in the air\nRain tapping on the glass, a quiet prayer\nNo need to rush, just stay right here\n[Chorus]\nOZ CAFE, where the time stands still\nMelodies flowing with a gentle thrill.",
+            "storytellingTitle": "Seoul Rainy Day - Track 2",
+            "shortsHook": "Seoul Rainy Day vibe for your busy day.",
+            "seoTags": [
+                "OZ Music",
+                "K-Indie/EmotionalR&B",
+                "Melancholic",
+                "BackgroundMusic",
+                "StudyMusic",
+                "RelaxingMusic",
+                "BGM",
+                "AI-Music"
+            ],
+            "components": {
+                "theme": "Seoul Rainy Day",
+                "genre": "K-Indie / Emotional R&B",
+                "mood": "Melancholic, Cozy, Sentimental",
+                "vibe": "A small window-side table in a Seoul cafe, watching the gray rainy street."
+            }
+        },
+        "context": "[Adaptive Review] 자신감 부족 또는 중요 기획안 검토 요청 (장르: K-Indie / Emotional R&B)",
+        "status": "AWAITING_REINFORCEMENT"
+    }
+]

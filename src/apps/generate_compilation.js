@@ -1,7 +1,7 @@
-const { generateMusic } = require('./generate_music');
-const promptEngineer = require('./prompt_engineer');
-const { generateAIImage } = require('./make_thumb');
-const { createVideo, concatAudioFiles } = require('./make_video');
+const { generateMusic } = require('../core/generate_music');
+const promptEngineer = require('../core/prompt_engineer');
+const { generateAIImage } = require('../core/make_thumb');
+const { createVideo, concatAudioFiles } = require('../core/make_video');
 const path = require('path');
 const fs = require('fs-extra');
 
@@ -11,59 +11,62 @@ const fs = require('fs-extra');
  * @param {number} targetMinutes - 총 목표 길이 (분, 기본 60분)
  */
 async function generateCompilation(baseTheme, targetMinutes = 60) {
-    const runId = `compilation_${Date.now()}`;
-    const outputDir = path.join(__dirname, 'compilations', runId);
+    // [FIX 2026-04-20] 날짜 태그 추가하여 고정 폴더 캐시 트랩 방지
+    const today = new Date().toISOString().split('T')[0];
+    const runId = `compilation_${baseTheme.replace(/\s+/g, '_')}_${today}`;
+    const outputDir = path.join(__dirname, '..', '..', 'loops', runId); // loops 폴더로 통합 관리
     const musicDir = path.join(outputDir, 'tracks');
     
     await fs.ensureDir(musicDir);
     await fs.ensureDir(outputDir);
 
-    console.log(`\n============== [OZ LONG-FORM ENGINE] ==============`);
+    console.log(`\n============== [OZ LONG-FORM ENGINE V4] ==============`);
     console.log(`🚀 테마: ${baseTheme}`);
-    console.log(`⏱️ 목표 길이: ${targetMinutes}분`);
+    console.log(`📅 날짜: ${today}`);
     console.log(`📁 작업 경로: ${outputDir}`);
-    console.log(`==================================================\n`);
+    console.log(`====================================================\n`);
 
     // 1. 대표 프롬프트 및 비주얼 생성
-    // 60분 내내 일관된 무드를 유지하기 위해 첫 번째 프롬프트를 기준으로 비주얼 제작
-    const baseInfo = promptEngineer.generateStructuredPrompt(0);
+    const baseInfo = await promptEngineer.generateStructuredPrompt(0, true, baseTheme);
     const mainPrompt = baseInfo.fullPrompt;
     const backgroundFile = path.join(outputDir, 'background.png');
     
     console.log(`🎨 [비주얼] 1시간 무드를 책임질 마스터 아트워크 생성 중...`);
     await generateAIImage(mainPrompt, backgroundFile);
 
-    // 2. 개별 트랙 생성 (약 20곡 = 60분)
+    // 2. 개별 트랙 생성
     const tracksNeeded = Math.ceil(targetMinutes / 3);
     const audioPaths = [];
+    const trackList = []; // 트랙리스트 저장 (타임스탬프용)
 
-    console.log(`\n🎵 [오디오] 총 ${tracksNeeded}개의 유니크 트랙 생성을 시작합니다...`);
-    console.log(`⚠️ 예상 소요 시간: 약 ${tracksNeeded * 2}분 / 예상 비용: 약 $${(tracksNeeded * 0.08).toFixed(2)}`);
+    console.log(`\n🎵 [오디오] 총 ${tracksNeeded}개의 시그니처 트랙 생성을 시작합니다...`);
 
+    let currentSeconds = 0;
     for (let i = 0; i < tracksNeeded; i++) {
-        const trackTitle = `track_${String(i + 1).padStart(2, '0')}.mp3`;
-        const tempFilename = `${runId}_${trackTitle}`;
-        const finalPath = path.join(musicDir, trackTitle);
+        const trackFilename = `track_${String(i + 1).padStart(2, '0')}.mp3`;
+        const finalPath = path.join(musicDir, trackFilename);
 
-        console.log(`\n[${i + 1}/${tracksNeeded}] '${trackTitle}' 작곡 중...`);
+        // [FIX] 트랙마다 고유한 제목 생성 (Generic 'Track 1' 탈피)
+        const trackInfo = await promptEngineer.generateStructuredPrompt(i, false, baseTheme);
+        const uniqueTitle = trackInfo.title || `${baseTheme} Session #${i + 1}`;
         
-        // 매 트랙마다 미세한 변주를 주기 위해 index 전달 (prompt_engineer의 데이터 순환 활용)
-        const trackInfo = promptEngineer.generateStructuredPrompt(i);
-        
-        // 보컬 유무는 대표님이 원하시는 대로 (여기서는 연주곡 위주로 구성하되 가끔 보컬 섞임)
-        // 만약 1시간 내내 보컬 없는 BGM을 원하시면 아래 주석 해제하여 강제 조정 가능
-        // trackInfo.fullPrompt += " [Instrumental BGM]";
+        console.log(`\n[${i + 1}/${tracksNeeded}] " ${uniqueTitle} " 작곡 중...`);
 
-        // 테마별 카테고리(baseTheme) 전달
-        await generateMusic(trackInfo.fullPrompt, tempFilename, 181, null, baseTheme);
+        // 타임스탬프 계산 (MM:SS)
+        const minutes = Math.floor(currentSeconds / 60);
+        const seconds = currentSeconds % 60;
+        const timestamp = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         
-        // 생성된 파일을 작업 폴더로 이동
-        const generatedPath = path.join(__dirname, 'music', tempFilename);
-        if (fs.existsSync(generatedPath)) {
-            await fs.move(generatedPath, finalPath);
+        trackList.push({ timestamp, title: uniqueTitle });
+        currentSeconds += 180; // 트랙당 약 3분 가정
+
+        const resultPath = await generateMusic(trackInfo.fullPrompt, `temp_${runId}_${i}.mp3`, 181, null, baseTheme);
+        
+        if (resultPath && fs.existsSync(resultPath)) {
+            await fs.move(resultPath, finalPath, { overwrite: true });
             audioPaths.push(finalPath);
         } else {
-            console.error(`❌ 트랙 ${i + 1} 생성 실패, 건너뜁니다.`);
+            console.error(`❌ 트랙 생성 실패: ${uniqueTitle}`);
         }
     }
 
@@ -91,12 +94,15 @@ async function generateCompilation(baseTheme, targetMinutes = 60) {
         theme: baseTheme,
         targetMinutes,
         trackCount: audioPaths.length,
+        trackList, // [FIX] 개별 트랙 제목 리스트 포함
         timestamp: new Date().toISOString()
     };
     await fs.writeJson(path.join(outputDir, 'metadata.json'), metadata, { spaces: 4 });
 
     return finalVideoPath;
 }
+
+module.exports = { generateCompilation };
 
 // 스크립트 단독 호출 시 (예시: 테마와 길이를 받아서 실행)
 if (require.main === module) {

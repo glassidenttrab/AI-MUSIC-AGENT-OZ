@@ -1,0 +1,78 @@
+[
+  {
+    "id": "REQ_1775836116960",
+    "timestamp": "2026-04-10T15:48:36.960Z",
+    "source": "Manager",
+    "type": "STRATEGY",
+    "status": "PENDING",
+    "details": {
+      "goal": "유튜브 채널 구독자 1만명 달성을 위한 월간 로드맵 작성",
+      "currentStatus": "구독자 100명"
+    },
+    "priority": "NORMAL"
+  },
+  {
+    "id": "REQ_1775836132647",
+    "timestamp": "2026-04-10T15:48:52.647Z",
+    "source": "PromptEngineer",
+    "type": "DEBUGGING",
+    "status": "PENDING",
+    "details": {
+      "error": "",
+      "originalPrompt": "이 질문은 실패해야 하며, 안티그래비티에게 위임되어야 합니다.",
+      "context": "텍스트 분석/추론 중 로컬 LLM 서버 장애 발생"
+    },
+    "priority": "HIGH"
+  },
+  {
+    "id": "REQ_1775836134727",
+    "timestamp": "2026-04-10T15:48:54.727Z",
+    "source": "Manager",
+    "type": "STRATEGY",
+    "status": "PENDING",
+    "details": {
+      "goal": "유튜브 채널 구독자 1만명 달성을 위한 월간 로드맵 작성",
+      "currentStatus": "구독자 100명"
+    },
+    "priority": "NORMAL"
+  },
+  {
+    "id": "REQ_1775836757893",
+    "timestamp": "2026-04-10T15:59:17.893Z",
+    "source": "PromptEngineer",
+    "type": "DEBUGGING",
+    "status": "PENDING",
+    "details": {
+      "error": "timeout of 60000ms exceeded",
+      "originalPrompt": "현재 시스템 상태를 체크해줘",
+      "context": "텍스트 분석/추론 중 로컬 LLM 서버 장애 발생"
+    },
+    "priority": "HIGH"
+  },
+  {
+    "id": "REQ_1775836881523",
+    "timestamp": "2026-04-10T16:01:21.523Z",
+    "source": "PromptEngineer",
+    "type": "DEBUGGING",
+    "status": "PENDING",
+    "details": {
+      "error": "timeout of 60000ms exceeded",
+      "originalPrompt": "그럼 안티 그래비티가 작업을 하고잇는거야 그걸 내가 어떻게 알수잇지?",
+      "context": "텍스트 분석/추론 중 로컬 LLM 서버 장애 발생"
+    },
+    "priority": "HIGH"
+  },
+  {
+    "id": "REQ_1775837646460",
+    "timestamp": "2026-04-10T16:14:06.460Z",
+    "source": "PromptEngineer",
+    "type": "DEBUGGING",
+    "status": "PENDING",
+    "details": {
+      "error": "timeout of 60000ms exceeded",
+      "originalPrompt": "솔직히 로컬ai 를 사용해서 api 과금을 아끼는것도 좋은데 코딩및 관리 품질이 떨어질까 걱정이야",
+      "context": "텍스트 분석/추론 중 로컬 LLM 서버 장애 발생"
+    },
+    "priority": "HIGH"
+  }
+]

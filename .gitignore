@@ -28,3 +28,5 @@ memory/logs/
 *.7z
 pm2_*.json
 current_procs*.json
+scratch/
+

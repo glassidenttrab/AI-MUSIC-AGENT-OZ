@@ -1,8 +1,319 @@
 {
   "successful_genres": [],
-  "technical_issues": [],
+  "technical_issues": [
+    {
+      "timestamp": "2026-04-20T12:33:44.257Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-pro",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:33:45.023Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-flash",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:33:45.828Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-flash-002",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:33:46.590Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-pro-002",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:34:48.488Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-pro",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:34:49.924Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-flash",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:34:50.445Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-pro",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:34:50.948Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-flash",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:34:51.459Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-flash-002",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:34:51.999Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-pro-002",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:34:53.535Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-pro",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:34:54.835Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-flash",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:34:55.582Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-pro",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:34:56.148Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-flash",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:34:56.857Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-flash-002",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:34:57.495Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-pro-002",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:38:34.580Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-pro",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:38:36.012Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-flash",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:38:36.620Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-pro",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:38:37.281Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-flash",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:38:37.993Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-flash-002",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:38:38.628Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-pro-002",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:38:40.311Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-pro",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:38:41.675Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-flash",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:38:42.410Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-pro",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:38:43.063Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-flash",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:38:43.754Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-flash-002",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:38:44.436Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-pro-002",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:42:47.969Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-pro",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:42:49.606Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-flash",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:42:50.223Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-pro",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:42:50.957Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-flash",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:42:51.566Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-flash-002",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:42:52.423Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-pro-002",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:46:07.566Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-pro",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:48:01.809Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-pro-001",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T12:48:02.267Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-flash-001",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T13:58:03.901Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-pro-preview",
+      "cause": "Model may not be available in asia-northeast3",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-20T15:25:56.267Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-flash-lite-preview",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-21T13:24:11.391Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-pro",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-21T13:55:57.537Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-pro",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-21T17:14:33.418Z",
+      "issue": "Vertex AI Regional Not Found: gemini-2.0-flash",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-21T17:14:34.851Z",
+      "issue": "Vertex AI Regional Not Found: gemini-1.5-flash",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-21T17:16:18.924Z",
+      "issue": "Vertex AI Regional Not Found: gemini-flash-latest",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-21T17:16:21.712Z",
+      "issue": "Vertex AI Regional Not Found: gemini-pro-latest",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-21T17:16:42.559Z",
+      "issue": "Vertex AI Regional Not Found: gemma-4-26b-a4b-it",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-22T01:05:15.693Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-flash",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-22T01:05:16.399Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-pro",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-22T01:24:18.877Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3.1-flash-lite-preview",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    },
+    {
+      "timestamp": "2026-04-22T06:00:26.686Z",
+      "issue": "Vertex AI Regional Not Found: gemini-3-flash-preview",
+      "cause": "Model may not be available in us-central1",
+      "solution": "Switching to Vertex Global or Google AI SDK backup."
+    }
+  ],
   "external_trends": [],
   "performance_history": [],
-  "last_youtube_trends": null,
-  "last_analyzed": null
+  "learning_highlights": [
+    {
+      "timestamp": "2026-04-21T02:00:00.000Z",
+      "lesson": "Bypass Module Removal: 레거시 우회 스크립트 제거를 통한 시스템 안정성 확보. Quota 우회보다는 정상적인 Fallback 로직 구축이 장기적으로 유리함.",
+      "action": "deep_scan_2026.js 등 7개 우회 스크립트 영구 제거 및 클린업 수행."
+    },
+    {
+      "timestamp": "2026-04-21T02:00:00.000Z",
+      "lesson": "Vertex AI Regional Handling: 특정 리전(us-central1 등)의 모델 부재는 상시 발생하므로 Global 엔드포인트와 Google AI SDK(API Key) 이중화 필수.",
+      "action": "GenAI 브릿지에 Global 리전 우선순위 및 다중 폴백 적용 계획 수립."
+    }
+  ]
 }

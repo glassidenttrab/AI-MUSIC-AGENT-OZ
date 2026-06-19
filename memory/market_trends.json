@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-04-12T05:11:00Z",
+  "source": "NotebookLM Hybrid Intelligence",
+  "top_trends_2026": [
+    {
+      "theme": "Biophilic Cyberpunk Sanctuary (Hybrid Nature-Tech)",
+      "score": 100,
+      "description": "The massive 2026 trend of blending cold futuristic rain with warm organic botanical gardens.",
+      "keywords": ["cyberpunk rain garden asmr", "biophilic lofi 2026", "futuristic interior garden sounds", "impossible sanctuary"]
+    },
+    {
+      "theme": "No-Talking Sleep Aids & Deep Sleep Ambiance",
+      "score": 85,
+      "description": "Sleep-focused content in the $107 billion wellness economy.",
+      "keywords": ["ASMR sleep fast", "no talking ASMR", "sleep sounds", "white noise", "deep ambient hum"]
+    },
+    {
+      "theme": "Nostalgic & Cozy Café Lofi/Jazz",
+      "score": 95,
+      "description": "Evergreen appeal of coffee shop ambiance and nostalgic soundtracks.",
+      "keywords": ["Lofi hip hop", "chillhop", "beats to relax/study", "coffee dreams", "nostalgic chill vibes"]
+    },
+    {
+      "theme": "Visual Triggers & Chaotic Fast ASMR",
+      "score": 85,
+      "description": "High retention driven by rapid pattern interrupts and visual satisfy.",
+      "keywords": ["Fast ASMR", "tingle test", "chaotic ASMR", "visual triggers", "rapid triggers"]
+    }
+  ],
+  "steady_sellers": [
+    {
+      "theme": "Deep Sleep Therapy (Pure Rain)",
+      "score": 90,
+      "description": "The golden standard for sleep and focus for over 10 years.",
+      "keywords": ["heavy rain sounds", "thunderstorm for sleep", "rain on roof", "water sounds for study"]
+    },
+    {
+      "theme": "Midnight Drive (Night City)",
+      "score": 88,
+      "description": "Consistent high watch time for passive listening while traveling or work.",
+      "keywords": ["night drive bgm", "synthwave commute", "city lights lofi", "driving at night slow"]
+    },
+    {
+      "theme": "Standard Bossa Nova Cafe",
+      "score": 85,
+      "description": "Universal background music for all types of public/private spaces.",
+      "keywords": ["bossa nova cafe bgm", "morning jazz", "positive cafe music", "smooth lounge"]
+    }
+  ]
+}

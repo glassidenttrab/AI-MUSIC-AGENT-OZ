@@ -30,48 +30,84 @@ async function main() {
         const now = new Date();
         const dateString = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}`;
 
-        const musicDir = path.join(__dirname, '../../music');
+        const musicDir = path.join(__dirname, '../../music/General');
 
-        // 2. 비디오 합성 소스 정의 및 지능형 프롬프트 생성 (5단계 구조 적용)
+        // 2. 비디오 합성 소스 정의
         const promptEngineer = require('../core/prompt_engineer');
-        const promptData = promptEngineer.generateStructuredPrompt(runIndex);
+
+        // [Smart Skip] 오늘 생성된 기존 음원이 있는지 먼저 확인
+        let promptData = null;
+        const filesInDir = fs.existsSync(musicDir) ? fs.readdirSync(musicDir) : [];
+        const todaySong = filesInDir.find(f => f.includes(dateString) && f.endsWith('.mp3'));
+
+        if (todaySong) {
+            console.log(`✨ [Smart Detect] 오늘 생성된 음원 [${todaySong}]을 발견했습니다!`);
+            console.log(`⏩ 외부 API 장애를 대비하여 AI 브레인 단계를 건너뛰고 즉시 영상 합성을 진행합니다.`);
+            
+            // 파일명에서 정보 추출 (형식: Genre_Theme_Date_Index.mp3)
+            const parts = todaySong.replace('.mp3', '').split('_');
+            const detectedGenre = parts[0] || "Jazz Lounge";
+            const detectedTheme = parts[2] || "OZ CAFE"; 
+
+            promptData = {
+                fullPrompt: `${detectedGenre} with ${detectedTheme} theme`,
+                lyrics: "OZ CAFE - Sophisticated Jazz Lounge\nEnjoy the peaceful vibes of the ethereal world.",
+                storytellingTitle: `[OZ CAFE] ${detectedGenre} - ${detectedTheme} (AI Original Mix)`,
+                components: {
+                    genre: detectedGenre,
+                    mood: "Sophisticated",
+                    instrument: "Piano & Bass",
+                    vocal: "Instrumental",
+                    theme: detectedTheme
+                }
+            };
+        } else {
+            // 💡 테마 선정 및 고도화된 프롬프트 생성 (클라우드 전용 엔진)
+            const selectedTheme = await promptEngineer.selectOptimalTheme();
+            promptData = await promptEngineer.generateStructuredPrompt(runIndex, false, selectedTheme);
+        }
+
         const { fullPrompt, lyrics, storytellingTitle, components } = promptData;
         const { genre, mood, instrument, vocal, theme } = components;
 
-        // 장르명과 제목, 생성일자, 인덱스를 결합하여 저장 경로 지정 (중복 방지 및 직관성 향상)
-        const genreSafe = genre.replace(/\s+/g, '_'); 
-        const titleSafe = theme.replace(/\s+/g, '_');
+        // 장르명과 제목, 생성일자, 인덱스를 결합하여 저장 경로 지정
+        const sanitize = (str) => str.replace(/[\/\\?%*:|"<>]/g, '_').replace(/\s+/g, '_');
+        const genreSafe = sanitize(genre); 
+        const titleSafe = sanitize(theme);
         const baseFileName = `${genreSafe}_${titleSafe}_${dateString}_${runIndex}`;
         
-        const audioFileName = `${baseFileName}.mp3`;
+        const audioFileName = todaySong || `${baseFileName}.mp3`;
         const audioFile = path.join(musicDir, audioFileName);
         const videoDir = path.join(__dirname, '../../videos');
         const videoOutput = path.join(videoDir, `${baseFileName}.mp4`);
 
-        // 썸네일 소스와 결과 출력 파일명에 인덱스 부여 하여 덮어쓰기 방지
+        // 썸네일 소스와 결과 출력 파일명
         const originalThumbFile = path.join(__dirname, '../../images', 'sample_thumb.png');
         const generatedThumbFile = path.join(__dirname, '../../images', `final_thumb_${runIndex}.png`);
         
         fs.ensureDirSync(videoDir);
 
-        // 음악 길이 설정 (기본 181초, 환경변수로 조절 가능)
-        // [롱폼 전용] 최소 3분(181초) 이상으로 설정하여 숏츠 자동 전환 방지
+        // 음악 길이 설정
         const musicDuration = process.env.OZ_MUSIC_DURATION ? parseInt(process.env.OZ_MUSIC_DURATION) : 181;
-        console.log(`\n[2/4] Google Lyria RealTime 가동 - 지능형 5단계 작곡 단계 (${musicDuration}초)...`);
-        console.log(`🧠 AI 뇌 생성 테마 (5 steps) -> ${fullPrompt}`);
-        if (lyrics) console.log(`🎤 가사 포함 생성 시작...`);
-
-        // 음악 생성 (기존 파일 없을 시)
-        if (!fs.existsSync(audioFile)) {
+        console.log(`\n[2/4] Google Lyria RealTime 가동 - 작곡 단계 (${musicDuration}초)...`);
+        
+        // 음악 생성 (기속 파일 없을 시)
+        if (!todaySong && !fs.existsSync(audioFile)) {
             await generateMusic(fullPrompt, audioFileName, musicDuration, lyrics);
         } else {
             console.log(`\n🎵 [알림] 기존 파일 [${audioFileName}]을 활용해 영상 합성을 진행합니다.`);
         }
 
-        // 파일 유효성 검사 (없을 경우 조용히 넘어가지 않도록 강력한 에러 발생)
-        if (!fs.existsSync(audioFile) || !fs.existsSync(originalThumbFile)) {
-            throw new Error(`❌ 필수 소스 파일 누락으로 합성을 중지합니다. 확인 필요: audioFile=${fs.existsSync(audioFile)}, thumbFile=${fs.existsSync(originalThumbFile)}`);
+        // [최종 경로 확정] 이미 위에서 확정된 audioFile을 사용
+        const finalAudioPath = audioFile;
+        const audioFileExists = fs.existsSync(finalAudioPath);
+        const thumbFileExists = fs.existsSync(originalThumbFile);
+
+        if (!audioFileExists || !thumbFileExists) {
+            throw new Error(`❌ 필수 소스 파일 누락으로 합성을 중지합니다. 확인 필요: audioFile=${audioFileExists} (targetPath: ${finalAudioPath}), thumbFile=${thumbFileExists}`);
         }
+        
+        console.log(`✅ 소스 확인 완료: ${path.basename(finalAudioPath)}`);
 
         // 3. 썸네일 및 슬라이드쇼 이미지 생성
         await createDynamicThumbnail(originalThumbFile, generatedThumbFile, genre, mood);
@@ -162,8 +198,18 @@ ${lyrics}
         await fs.writeFile(reportFile, reportContent, 'utf8');
         console.log(`\n📄 [리포트 생성] 가사 및 메타데이터가 저장되었습니다: ${reportFile}`);
 
+        // [다국어 로컬라이제이션] 제목 및 설명글 번역 생성
+        let localizations = null;
+        try {
+            localizations = await promptEngineer.generateMultiLanguageMetadata(title, description);
+        } catch (transErr) {
+            console.warn(`⚠️ 다국어 번역본 생성 중 오류 발생: ${transErr.message}`);
+        }
+
         // 유튜브 모듈 호출
-        const videoId = await uploadVideo(auth, videoOutput, generatedThumbFile, title, description, tags, publishAt);
+        const videoId = await uploadVideo(auth, videoOutput, generatedThumbFile, title, description, tags, publishAt, {
+            localizations: localizations
+        });
 
         if (videoId) {
             console.log(`\n====== [AI MUSIC AGENT OZ] #${runIndex + 1} 사이클 성공 종료 ======`);

@@ -12,7 +12,7 @@ def check_keys():
     print(f"--- [총 {len(api_keys)}개의 API 키 정밀 진단 시작] ---")
     
     for i, key in enumerate(api_keys):
-        print(f"\n🔑 Key #{i+1} 검증 중...")
+        print(f"\n[Key #{i+1}] 검증 중...")
         try:
             client = genai.Client(api_key=key)
             # 아주 가벼운 텍스트 생성 테스트

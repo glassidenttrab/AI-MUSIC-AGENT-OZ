@@ -13,36 +13,50 @@ async function main() {
     console.log('================================================');
 
     try {
-        // 1. 최적의 테마 선정 (YouTube 실시간 트렌드 및 성능 데이터 기반)
+        // 1. 최적의 테마 선정
         const selectedTheme = await promptEngineer.selectOptimalTheme();
-        
-        // 2. 고도화된 Lyria 3 프롬프트 생성
-        const musicPrompt = promptEngineer.generateStructuredPrompt(selectedTheme);
-        
-        // 3. 바이럴 메타데이터 생성
-        const metadata = promptEngineer.generateViralMetadata(selectedTheme);
+        const tracks = [];
+        const trackCount = 10;
 
-        // 4. 결과 출력 (사용자 피드백 대기 및 확인용)
         console.log('\n------------------------------------------------');
-        console.log(`📌 SELECTED THEME : ${selectedTheme}`);
+        console.log(`🎯 SELECTED BATCH THEME : ${selectedTheme}`);
+        console.log(`📊 TARGET: 10 TRACKS / 1 HOUR COMPILATION`);
         console.log('------------------------------------------------');
+
+        // 2. 10곡 배치 생성 루프 가동
+        console.log(`\n🚀 [Batch Mode] 10개의 고유 프롬프트 생성을 시작합니다...`);
+        for (let i = 0; i < trackCount; i++) {
+            process.stdout.write(`⏳ Generating Track #${i + 1}/${trackCount}... `);
+            const trackInfo = await promptEngineer.generateStructuredPrompt(i, true, selectedTheme);
+            tracks.push(trackInfo);
+            console.log(`✅ [${trackInfo.storytellingTitle}]`);
+        }
+
+        // 3. 통합 리포트 출력
+        console.log('\n================================================');
+        console.log('📜  AI MUSIC AGENT OZ - MEGA BATCH REPORT');
+        console.log('================================================');
         
-        console.log('\n[🎹 Lyria 3 Music Generation Prompt]');
-        console.log('------------------------------------------------');
-        console.log(musicPrompt);
-        console.log('------------------------------------------------');
+        console.log('\n🎵 [Album Tracklist Preview]');
+        tracks.forEach((t, idx) => {
+            console.log(`   Track ${idx + 1}: ${t.storytellingTitle}`);
+        });
 
-        console.log('\n[📺 YouTube MetaData (Viral Optimized)]');
-        console.log(`TITLE: ${metadata.title}`);
-        console.log(`TAGS : ${metadata.tags.join(', ')}`);
-        console.log('\n[DESCRIPTION PREVIEW]');
-        console.log(metadata.descriptionHeader);
-        console.log('------------------------------------------------');
+        console.log('\n--- Detailed Track Metadata ---');
+        tracks.forEach((t, idx) => {
+            console.log(`\n[Track ${idx + 1}] ${t.storytellingTitle}`);
+            console.log(`🔗 Prompt: ${t.fullPrompt.substring(0, 100)}...`);
+            console.log(`🏷️ Tags  : ${t.seoTags.slice(0, 5).join(', ')}`);
+        });
 
-        // 5. 성공 이력 기록 (시뮬레이션 - 실제 생성 단계 이후에 호출 권장)
-        // 향후 자동화 파이프라인 연동 시 이 부분을 활용해 학습 시스템 고도화
-        console.log('\n✅ 4세대 전략 프롬프트 생성 완료!');
-        console.log('이제 생성된 프롬프트를 사용하여 고해상도 음악을 제작할 수 있습니다.');
+        console.log('\n------------------------------------------------');
+        console.log('📺 [YouTube Viral MetaData Pack]');
+        const metadata = promptEngineer.generateViralMetadata(selectedTheme);
+        console.log(`TITLE suggestion: [1 Hour] ${selectedTheme} | ${tracks[0].storytellingTitle} & More`);
+        console.log(`TAGS: ${tracks[0].seoTags.join(', ')}`);
+        
+        console.log('\n✅ 10곡 배치 프롬프트 생성 완료!');
+        console.log('사용자님, 위 프롬프트들을 순서대로 사용해 1시간 분량의 명작을 완성하세요.');
 
     } catch (error) {
         console.error('\n❌ 시스템 오류 발생:', error.message);

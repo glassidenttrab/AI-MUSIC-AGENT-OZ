@@ -18,12 +18,12 @@ async function runHealthCheck() {
     try {
         const pm2List = execSync('npx pm2 jlist', { encoding: 'utf8' });
         const apps = JSON.parse(pm2List);
-        const masterApp = apps.find(a => a.name === 'OZ_MASTER_SCHEDULER');
+        const masterApp = apps.find(a => a.name === 'OZ_MUSIC_MASTER_SCHEDULER');
         
         if (masterApp && masterApp.pm2_env.status === 'online') {
-            statusReport += "✅ [PM2] OZ_MASTER_SCHEDULER: 온라인 (정상)\n";
+            statusReport += "✅ [PM2] OZ_MUSIC_MASTER_SCHEDULER: 온라인 (정상)\n";
         } else {
-            statusReport += "❌ [PM2] OZ_MASTER_SCHEDULER: 중단됨 또는 찾을 수 없음\n";
+            statusReport += "❌ [PM2] OZ_MUSIC_MASTER_SCHEDULER: 중단됨 또는 찾을 수 없음\n";
             isHealthy = false;
         }
     } catch (e) {

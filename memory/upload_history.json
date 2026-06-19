@@ -98,5 +98,423 @@
             "theme": "Rainy Day Cafe",
             "isInstrumental": true
         }
+    },
+    {
+        "video_id": "3p5aQ4plMpE",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-14T05:00:10.543Z",
+        "metadata": {
+            "youtube_title": "[OZ] Biophilic Cyberpunk Sanctuary | 1 Hour Immersive Loop 🎧",
+            "theme": "Biophilic Cyberpunk Sanctuary",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "wfYCdxXqo8k",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-14T05:00:19.850Z",
+        "metadata": {
+            "youtube_title": "Biophilic Cyberpunk Sanctuary Vibes ✨ #Shorts #AI #OZ",
+            "theme": "Biophilic Cyberpunk Sanctuary",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "GkxWvjVDw6A",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-14T05:06:11.570Z",
+        "metadata": {
+            "youtube_title": "[OZ] OZ CAFE | 1 Hour Immersive Loop 🎧",
+            "theme": "OZ CAFE",
+            "isInstrumental": false
+        }
+    },
+    {
+        "video_id": "S5ZGubT0vhc",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-14T05:06:19.408Z",
+        "metadata": {
+            "youtube_title": "OZ CAFE Vibes ✨ #Shorts #AI #OZ",
+            "theme": "OZ CAFE",
+            "isInstrumental": false
+        }
+    },
+    {
+        "video_id": "4yqLEnI9k7Q",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-17T07:42:43.113Z",
+        "metadata": {
+            "youtube_title": "🎧 Sophisticated, Warm, Relaxing Jazz / Lounge mix | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "b_GMkrCCc3k",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-17T07:42:47.117Z",
+        "metadata": {
+            "youtube_title": "OZ CAFE Session #1 (Inst.) | #Shorts #OZ #AI",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "4hxLbKXLNYY",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-17T16:00:24.924Z",
+        "metadata": {
+            "youtube_title": "🎧 Sophisticated, Warm, Relaxing Jazz / Lounge mix | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "GBPuQyPMVNg",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-17T16:00:29.698Z",
+        "metadata": {
+            "youtube_title": "OZ CAFE Session #1 (Inst.) | #Shorts #OZ #AI",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "QsInFbzN2V8",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-18T00:42:14.926Z",
+        "metadata": {
+            "youtube_title": "🎧 Sophisticated, Warm, Relaxing Jazz / Lounge mix | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "-XQDCkVQK20",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-18T00:42:18.243Z",
+        "metadata": {
+            "youtube_title": "OZ CAFE Session #1 (Inst.) | #Shorts #OZ #AI",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "vcPy4q3AqKw",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-18T17:01:17.237Z",
+        "metadata": {
+            "youtube_title": "🎧 Sophisticated, Warm, Relaxing Jazz / Lounge mix | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "6rpoVEPZM3Q",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-18T17:01:20.706Z",
+        "metadata": {
+            "youtube_title": "OZ CAFE Session #1 (Inst.) | #Shorts #OZ #AI",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "Jqc8t1I03lw",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-20T04:13:55.365Z",
+        "metadata": {
+            "youtube_title": "🎧 Sophisticated, Warm, Relaxing Jazz / Lounge mix | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "tQz95CkBsYU",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-20T04:13:59.802Z",
+        "metadata": {
+            "youtube_title": "OZ CAFE Session #1 (Inst.) | #Shorts #OZ #AI",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "t_N0-fvfOtw",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-20T05:12:05.722Z",
+        "metadata": {
+            "youtube_title": "🎧 Sophisticated, Warm, Relaxing Jazz / Lounge mix | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "OlbZ8emYOfw",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-20T05:12:09.591Z",
+        "metadata": {
+            "youtube_title": "OZ CAFE - Track 1 | #Shorts #OZ #AI",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "p23PrjiruLI",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-22T07:58:50.506Z",
+        "metadata": {
+            "youtube_title": "🎧 Sophisticated, Warm, Relaxing Jazz / Lounge mix | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "Yqq7Tvg8h04",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-22T07:58:54.253Z",
+        "metadata": {
+            "youtube_title": "Porcelain Steam Sighs | #Shorts #OZ #AI",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "_uKObxE8ZBo",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-22T17:47:21.169Z",
+        "metadata": {
+            "youtube_title": "🎧 Sophisticated, Warm, Relaxing Jazz / Lounge mix | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "W4QzjVEGGWU",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-23T08:04:54.628Z",
+        "metadata": {
+            "youtube_title": "🎧 Sophisticated, Warm, Relaxing Jazz / Lounge mix | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "KP0Ny9xpk9U",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-23T08:04:58.170Z",
+        "metadata": {
+            "youtube_title": "OZ CAFE Session #1 (Inst.) | #Shorts #OZ #AI",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "89E04S-ZRws",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-24T09:22:48.321Z",
+        "metadata": {
+            "youtube_title": "[OZ] Atmospheric Background mix | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "-gg2Jn9ESFc",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-24T09:22:52.591Z",
+        "metadata": {
+            "youtube_title": "Midnight Porcelain Echoes | #Shorts #OZ #AI",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "uQLwzXPGltU",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-24T17:01:10.515Z",
+        "metadata": {
+            "youtube_title": "[OZ] Atmospheric Background mix | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "i_TIAKpKZzY",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-24T17:01:14.117Z",
+        "metadata": {
+            "youtube_title": "Midnight Porcelain Echoes | #Shorts #OZ #AI",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "6lL1budCBoI",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-25T18:06:24.792Z",
+        "metadata": {
+            "youtube_title": "[OZ] Sophisticated, Warm, Relaxing Jazz / Lounge | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "Rs-Ib0x3DbY",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-25T18:06:27.984Z",
+        "metadata": {
+            "youtube_title": "Midnight Rain Whispers | #Shorts #OZ #AI",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "IT5SwEv0O2E",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-26T18:00:40.156Z",
+        "metadata": {
+            "youtube_title": "[OZ] Sophisticated, Warm, Relaxing Jazz / Lounge | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "GpVC6VP9wwo",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-26T18:00:45.403Z",
+        "metadata": {
+            "youtube_title": "Amber Rain Whispers | #Shorts #OZ #AI",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "YVoJZmMf5QE",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-29T11:03:53.969Z",
+        "metadata": {
+            "youtube_title": "[OZ] 🎧 POV: You're the last person in the city, hiding from the rain in a hidden jazz bar | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "9awHvJAYjfI",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-04-30T17:56:06.266Z",
+        "metadata": {
+            "youtube_title": "[OZ] 🎧 POV: You're finding peace in an empty jazz cafe while it rains outside [Sophisticated Night Jazz] | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "mN0FCBn4To8",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-04-30T17:56:09.731Z",
+        "metadata": {
+            "youtube_title": "🎧 POV: You're finding peace in an empty jazz cafe while it rains outside [Sophisticated Night Jazz]",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "7FUxBPkYvoU",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-05-03T18:02:24.822Z",
+        "metadata": {
+            "youtube_title": "[OZ] 🎧 POV: You're finding peace in a rainy jazz cafe at 2 AM [Deep Focus/Jazz] | OZ CAFE | AI Music Agent OZ",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "ZDw8cOaPaow",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-05-03T18:02:28.694Z",
+        "metadata": {
+            "youtube_title": "🎧 POV: You're finding peace in a rainy jazz cafe at 2 AM [Deep Focus/Jazz] | #Shorts #OZ #AI",
+            "genre": "OZ CAFE",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "OY2cSMA8ouk",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-06-17T07:36:11.924Z",
+        "metadata": {
+            "youtube_title": "[OZ] Midnight City & Glass Soundscapes | Relaxing Instrumental Jazz Compilation 🌆",
+            "theme": "Midnight City",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "JqYLLOqfwiU",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-06-17T07:36:17.918Z",
+        "metadata": {
+            "youtube_title": "Cozy Midnight City Jazz Vibes ☕️🌃 #shorts #jazz #oz",
+            "theme": "Midnight City",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "4ag4udByalE",
+        "status": "published",
+        "type": "longform",
+        "timestamp": "2026-06-18T06:18:57.298Z",
+        "metadata": {
+            "youtube_title": "[OZ] 비 오는 날 서재에서 듣는 차분한 로파이 재즈 피아노 ｜ 공부와 집중을 위한 Lofi 음악 📚🌧️",
+            "theme": "Rain in the Study",
+            "isInstrumental": true
+        }
+    },
+    {
+        "video_id": "M56oJ3wa36A",
+        "status": "published",
+        "type": "shorts",
+        "timestamp": "2026-06-18T06:19:02.071Z",
+        "metadata": {
+            "youtube_title": "비 오는 날 서재, 나만을 위한 고요한 시간 ☕️📖 #Shorts #Lofi #빗소리",
+            "theme": "Rain in the Study",
+            "isInstrumental": true
+        }
     }
 ]
