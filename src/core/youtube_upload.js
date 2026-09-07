@@ -64,9 +64,10 @@ class QuotaManager {
 const quotaManager = new QuotaManager();
 
 /**
- * YouTube API 클라이언트 인증 처리
+ * YouTube API 클라이언트 인증 처리 (채널별 지원)
+ * @param {string} [channelKey='OZ'] - 대상 채널 키 ('OZ', 'TROT', 'NATURE')
  */
-async function authorize() {
+async function authorize(channelKey = 'OZ') {
     const content = await fs.readFile(path.join(__dirname, '../../configs', CLIENT_SECRET_FILE), 'utf8');
     const credentials = JSON.parse(content);
     
@@ -76,26 +77,38 @@ async function authorize() {
 
     const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
 
+    // 채널별 전용 토큰 파일 경로 (예: configs/token_trot.json)
+    const normalizedKey = (channelKey || 'OZ').toLowerCase();
+    const specificTokenPath = path.join(__dirname, '../../configs', `token_${normalizedKey}.json`);
+    const defaultTokenPath = TOKEN_PATH; // configs/token.json
+
+    let activeTokenPath = specificTokenPath;
+    if (!fs.existsSync(specificTokenPath) && fs.existsSync(defaultTokenPath) && normalizedKey === 'oz') {
+        activeTokenPath = defaultTokenPath;
+    }
+
     try {
-        const token = await fs.readFile(TOKEN_PATH, 'utf8');
+        const token = await fs.readFile(activeTokenPath, 'utf8');
         oAuth2Client.setCredentials(JSON.parse(token));
         return oAuth2Client;
     } catch (err) {
-        return await getNewToken(oAuth2Client);
+        return await getNewToken(oAuth2Client, activeTokenPath, channelKey);
     }
 }
 
-function getNewToken(oAuth2Client) {
+function getNewToken(oAuth2Client, savePath, channelKey = 'OZ') {
     return new Promise((resolve, reject) => {
         const authUrl = oAuth2Client.generateAuthUrl({
             access_type: 'offline',
             scope: SCOPES,
+            prompt: 'consent' // 항상 리프레시 토큰 발급
         });
 
         console.log('\n======================================================');
-        console.log('1. 다음 URL을 브라우저에서 열고 구글 로그인을 진행하세요:');
+        console.log(`[YouTube 인증] [채널: ${channelKey.toUpperCase()}]`);
+        console.log('1. 다음 URL을 브라우저에서 열고 해당 채널의 구글 계정으로 로그인하세요:');
         console.log(authUrl);
-        console.log('2. 승인 코드를 아래에 입력하세요.');
+        console.log(`2. 승인 코드를 아래에 입력하세요 (저장 위치: ${path.basename(savePath)})`);
         console.log('======================================================\n');
         
         const rl = readline.createInterface({
@@ -103,13 +116,14 @@ function getNewToken(oAuth2Client) {
             output: process.stdout,
         });
 
-        rl.question('승인 코드(code) 입력: ', (code) => {
+        rl.question(`[${channelKey}] 승인 코드(code) 입력: `, (code) => {
             rl.close();
             oAuth2Client.getToken(code, (err, token) => {
                 if (err) return reject(err);
                 oAuth2Client.setCredentials(token);
-                fs.ensureDirSync(path.dirname(TOKEN_PATH));
-                fs.writeJsonSync(TOKEN_PATH, token);
+                fs.ensureDirSync(path.dirname(savePath));
+                fs.writeJsonSync(savePath, token, { spaces: 4 });
+                console.log(`✅ [${channelKey}] 토큰 저장 완료: ${savePath}`);
                 resolve(oAuth2Client);
             });
         });

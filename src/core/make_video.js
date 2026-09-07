@@ -22,14 +22,14 @@ function createVideo(audioPath, imagePath, outputPath) {
             '-loop', '1', '-i', imagePath,
             '-i', audioPath,
             '-filter_complex', 
-            '[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2,format=yuv420p[vbg];' +
-            '[1:a]aformat=channel_layouts=mono,showwaves=s=1600x120:mode=p2p:colors=white@0.4|white@0.8:scale=sqrt:n=20[wave];' +
-            '[vbg][wave]overlay=x=(W-w)/2:y=H-180:eval=init[outv]',
+            '[0:v]scale=2160:1215,zoompan=z=\'min(zoom+0.00003,1.12)\':x=\'iw/2-(iw/zoom/2)+sin(on/200)*20\':y=\'ih/2-(ih/zoom/2)\':d=1:s=1920x1080:fps=25[vbg];' +
+            '[1:a]showfreqs=s=300x140:mode=bar:fscale=log:colors=0xFF1493@0.85|0x9400D3@0.8|0x00E5FF@0.9:ascale=sqrt[freq];' +
+            '[vbg][freq]overlay=x=(W-w)/2:y=(H-h)/2:eval=init[outv]',
             '-map', '[outv]',
             '-map', '1:a',
-            '-c:v', 'libx265', '-crf', '32', '-preset', 'medium',
+            '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '24',
             '-pix_fmt', 'yuv420p',
-            '-c:a', 'aac', '-b:a', '192k', // 오디오 인코딩 안정성 확보
+            '-c:a', 'aac', '-b:a', '192k',
             '-shortest',
             '-movflags', '+faststart',
             outputPath
